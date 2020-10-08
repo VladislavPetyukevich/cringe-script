@@ -1,4 +1,4 @@
-enum TokenType {
+export enum TokenType {
   Name,   // 0
   Num,    // 1
   Equal,  // 2
@@ -24,7 +24,7 @@ const getTokenType = (stringView: string) => {
   }
 };
 
-interface Token {
+export interface Token {
   type: TokenType;
   stringView: string;
 }
