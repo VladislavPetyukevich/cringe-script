@@ -67,7 +67,7 @@ export const tokenize = (source: string) => {
         };
       }
 
-      const prevToken = getToken(currState.charsBuffer);
+      const prevToken = getToken(currState.charsBuffer.trim());
       const currToken = getToken(currChar);
       return {
         tokens: [...currState.tokens, prevToken, currToken],
