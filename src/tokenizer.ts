@@ -50,32 +50,24 @@ export const tokenize = (source: string) => {
   };
 
   const tokenizedState = chars.reduce(
-    (currState, currChar, index) => {
-      if (currChar === '\n') {
-        const tokenBeforeNewLine = getToken(currState.charsBuffer);
-        const newToken = getToken(currChar);
-        return {
-          tokens: [...currState.tokens, tokenBeforeNewLine, newToken],
-          charsBuffer: ''
-        };
-      }
-
+    (currState, currChar) => {
+      const charTokenType = getTokenType(currChar);
       if (
-        (currChar === ' ') ||
-        (currChar === '\t') ||
-        (index === chars.length - 1)
+        (charTokenType === TokenType.Num) ||
+        (charTokenType === TokenType.Name)
       ) {
-        const newToken = getToken(currState.charsBuffer);
+        const newStringBuffer = currState.charsBuffer + currChar;
         return {
-          tokens: [...currState.tokens, newToken],
-          charsBuffer: ''
+          tokens: currState.tokens,
+          charsBuffer: newStringBuffer
         };
       }
 
-      const newStringBuffer = currState.charsBuffer + currChar;
+      const prevToken = getToken(currState.charsBuffer);
+      const currToken = getToken(currChar);
       return {
-        tokens: currState.tokens,
-        charsBuffer: newStringBuffer
+        tokens: [...currState.tokens, prevToken, currToken],
+        charsBuffer: ''
       };
     },
     initialState
