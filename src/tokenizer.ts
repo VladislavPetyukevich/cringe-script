@@ -42,8 +42,12 @@ interface TokenizerState {
   charsBuffer: string;
 }
 
+const removeBlankLines = (text: string) =>
+  text.replace(/^\s*[\r\n]/gm, '');
+
 export const tokenize = (source: string) => {
-  const chars = source.split('');
+  const withoutBlankLines = removeBlankLines(source);
+  const chars = withoutBlankLines.split('');
   const initialState: TokenizerState = {
     tokens: [],
     charsBuffer: ''
