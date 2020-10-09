@@ -1,12 +1,12 @@
 import { TokenType, Token } from './tokenizer';
 
-interface Expression {
+export interface Expression {
   leftOperand: Token;
   operator: null | Token;
   rightOperand: null | Expression;
 }
 
-interface Assignment {
+export interface Assignment {
   variableName: string;
   value: Expression;
 }
