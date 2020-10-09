@@ -1,9 +1,10 @@
 export enum TokenType {
-  Name,   // 0
-  Num,    // 1
-  Equal,  // 2
-  NewLine,// 3
-  Multiply// 4
+  Name,     // 0
+  Num,      // 1
+  Equal,    // 2
+  NewLine,  // 3
+  Multiply, // 4
+  Plus      // 5
 }
 
 const getTokenType = (stringView: string) => {
@@ -12,6 +13,9 @@ const getTokenType = (stringView: string) => {
   }
   if (stringView === '*') {
     return TokenType.Multiply;
+  }
+  if (stringView === '+') {
+    return TokenType.Plus;
   }
   if (stringView === '\n') {
     return TokenType.NewLine;
