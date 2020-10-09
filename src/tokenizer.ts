@@ -5,7 +5,8 @@ export enum TokenType {
   NewLine,  // 3
   Multiply, // 4
   Devide,   // 5
-  Plus      // 6
+  Plus,     // 6
+  Minus     // 7
 }
 
 const getTokenType = (stringView: string) => {
@@ -20,6 +21,9 @@ const getTokenType = (stringView: string) => {
   }
   if (stringView === '+') {
     return TokenType.Plus;
+  }
+  if (stringView === '-') {
+    return TokenType.Minus;
   }
   if (stringView === '\n') {
     return TokenType.NewLine;
