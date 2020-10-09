@@ -63,10 +63,18 @@ const splitTokensToStatements = (tokens: Token[]) => {
   return [lineTokens, ...splitTokensToStatements(restTokens)];
 };
 
-export const parse = (tokens: Token[]) => {
+type StatementType = 'Assignment';
+
+export interface Statement {
+  type: StatementType;
+  value: Assignment;
+}
+
+export const parse = (tokens: Token[]): Statement[] => {
   const tokenStatements = splitTokensToStatements(tokens);
-  console.log('tokenStatements: ', tokenStatements);
   const assignments = tokenStatements.map(parseAssignment);
-  console.log('assignments: ', JSON.stringify(assignments));
+  return assignments.map(
+    assignment => ({ type: 'Assignment', value: assignment })
+  );
 };
 

@@ -9,5 +9,6 @@ countX3 = 5-3*2/23+ 6
 
 const tokens = tokenize(programText);
 console.log('tokens: ', tokens);
-parse(tokens);
+const statements = parse(tokens);
+console.log('statements: ', JSON.stringify(statements));
 
