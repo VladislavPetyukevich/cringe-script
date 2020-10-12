@@ -7,6 +7,9 @@ count = 5
 countX2 = 5 * 2
 countX3 = 5-3*2/23+ 6
 str = \'a\' + \'b\'
+sum = a,b {
+  a + b
+}
 `;
 
 const tokens = tokenize(programText);
