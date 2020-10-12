@@ -1,12 +1,14 @@
 export enum TokenType {
   Name,     // 0
   Num,      // 1
-  Equal,    // 2
-  NewLine,  // 3
-  Multiply, // 4
-  Devide,   // 5
-  Plus,     // 6
-  Minus     // 7
+  Str,      // 2
+  Equal,    // 3
+  NewLine,  // 4
+  Multiply, // 5
+  Devide,   // 6
+  Plus,     // 7
+  Minus,    // 8
+  Quote     // 9
 }
 
 const getTokenType = (stringView: string) => {
@@ -25,8 +27,17 @@ const getTokenType = (stringView: string) => {
   if (stringView === '-') {
     return TokenType.Minus;
   }
+  if (stringView === '\'') {
+    return TokenType.Quote;
+  }
   if (stringView === '\n') {
     return TokenType.NewLine;
+  }
+  if (
+    (stringView[0] === '\'') &&
+    (stringView[stringView.length - 1] === '\'')
+  ) {
+    return TokenType.Str;
   }
   const intRepresentation = parseInt(stringView, 10);
   if (isNaN(intRepresentation)) {
@@ -68,21 +79,33 @@ export const tokenize = (source: string) => {
   const tokenizedState = chars.reduce(
     (currState, currChar) => {
       const charTokenType = getTokenType(currChar);
+      const currToken = getToken(currState.charsBuffer.trim() + currChar);
+      const isStringCompleted = currToken.type === TokenType.Str;
+      if (isStringCompleted) {
+        return {
+          tokens: [...currState.tokens, currToken],
+          charsBuffer: ''
+        };
+      }
       if (
         (charTokenType === TokenType.Num) ||
-        (charTokenType === TokenType.Name)
+        (charTokenType === TokenType.Name) ||
+        (charTokenType === TokenType.Quote && !isStringCompleted)
       ) {
-        const newStringBuffer = currState.charsBuffer + currChar;
         return {
           tokens: currState.tokens,
-          charsBuffer: newStringBuffer
+          charsBuffer: currState.charsBuffer + currChar
         };
       }
 
-      const prevToken = getToken(currState.charsBuffer.trim());
-      const currToken = getToken(currChar);
+      const charsBuffer = currState.charsBuffer.trim();
+      const currCharToken = getToken(currChar);
       return {
-        tokens: [...currState.tokens, prevToken, currToken],
+        tokens: [
+          ...currState.tokens,
+          ...charsBuffer ? [getToken(charsBuffer)] : [],
+          currCharToken
+        ],
         charsBuffer: ''
       };
     },
