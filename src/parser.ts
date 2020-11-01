@@ -7,7 +7,7 @@ export interface Statement {
 
 export interface FunctionExpression {
   args: Token[];
-  body: Token[];
+  body: Statement[];
 }
 
 export interface Expression {
@@ -77,14 +77,13 @@ const parseBody = (tokens: Token[]) => {
     throw new Error('Close brace not found');
   }
   const body = tokens.slice(openBraceIndex + 2, closeBraceIndex - 1);
-  return body;
+  const bodyStatements = parse(body);
+  return bodyStatements;
 };
 
 const parseFunctionExpression = (tokens: Token[]): FunctionExpression => {
   const args = parseArgs(tokens);
-  console.log('args: ', args);
   const body = parseBody(tokens);
-  console.log('body: ', body);
   return { args, body };
 };
 
@@ -143,7 +142,11 @@ const splitTokensToStatements = (tokens: Token[]) => {
   }
   const lineTokens = tokens.slice(0, newLineIndex);
   const restTokens = tokens.slice(newLineIndex + 1);
-  return [lineTokens, ...splitTokensToStatements(restTokens)];
+  if (restTokens.length) {
+    return [lineTokens, splitTokensToStatements(restTokens)];
+  } else {
+    return [lineTokens];
+  }
 };
 
 type StatementType = 'Assignment' | 'Expression';
