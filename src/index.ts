@@ -12,6 +12,7 @@ import { compileJS } from './compilerJS';
 // str = \'a\' + \'b\'
 // `;
 const programText = `
+5 + 5
 sum = 5 + 5
 sum2 = a,b {
   num = a + b

@@ -2,7 +2,7 @@ import { TokenType, Token } from './tokenizer';
 
 export interface Statement {
   type: StatementType;
-  value: Assignment;
+  value: Assignment | Expression | FunctionExpression;
 }
 
 export interface FunctionExpression {
@@ -102,8 +102,6 @@ const parseAnyTypeExpression = (tokens: Token[]) => {
 };
 
 const parseAssignment = (tokens: Token[]): Assignment => {
-  expectTokenType(tokens[0].type, [TokenType.Name]);
-  expectTokenType(tokens[1].type, [TokenType.Equal]);
   const variableName = tokens[0].stringView;
   const expressionTokens = tokens.slice(2, tokens.length);
   const value = parseAnyTypeExpression(expressionTokens);
@@ -148,14 +146,36 @@ const splitTokensToStatements = (tokens: Token[]) => {
   return [lineTokens, ...splitTokensToStatements(restTokens)];
 };
 
-type StatementType = 'Assignment';
+type StatementType = 'Assignment' | 'Expression';
+
+const checkIsAssignment = (tokens: Token[]) => {
+  try {
+    expectTokenType(tokens[0].type, [TokenType.Name]);
+    expectTokenType(tokens[1].type, [TokenType.Equal]);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const parseStatement = (tokens: Token[]): Statement => {
+  const isAssignment = checkIsAssignment(tokens);
+  if (isAssignment) {
+    return {
+      type: 'Assignment',
+      value: parseAssignment(tokens)
+    }
+  } else {
+    return {
+      type: 'Expression',
+      value: parseAnyTypeExpression(tokens)
+    }
+  }
+};
 
 export const parse = (tokens: Token[]): Statement[] => {
   const tokenStatements = splitTokensToStatements(tokens);
-  console.log('tokenStatements: ', tokenStatements);
-  const assignments = tokenStatements.map(parseAssignment);
-  return assignments.map(
-    assignment => ({ type: 'Assignment', value: assignment })
-  );
+  const statements = tokenStatements.map(parseStatement);
+  return statements;
 };
 
