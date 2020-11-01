@@ -7,7 +7,7 @@ export interface Statement {
 
 export interface FunctionExpression {
   args: Token[];
-  body: Statement[];
+  body: Token[];
 }
 
 export interface Expression {
@@ -18,7 +18,7 @@ export interface Expression {
 
 export interface Assignment {
   variableName: string;
-  value: Expression;
+  value: Expression | FunctionExpression;
 }
 
 const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) => {
@@ -85,16 +85,31 @@ const parseFunctionExpression = (tokens: Token[]): FunctionExpression => {
   console.log('args: ', args);
   const body = parseBody(tokens);
   console.log('body: ', body);
+  return { args, body };
+};
+
+const checkIsFunctionExpression = (tokens: Token[]) => {
+  const comma = tokens.find(token => token.type === TokenType.Comma);
+  return !!comma;
+};
+
+const parseAnyTypeExpression = (tokens: Token[]) => {
+  const isFunctionExpression = checkIsFunctionExpression(tokens);
+  const value = isFunctionExpression ?
+    parseFunctionExpression(tokens) :
+    parseExpression(tokens)
+  return value;
 };
 
 const parseAssignment = (tokens: Token[]): Assignment => {
-  parseFunctionExpression(tokens.slice(2, tokens.length));
   expectTokenType(tokens[0].type, [TokenType.Name]);
   expectTokenType(tokens[1].type, [TokenType.Equal]);
+  const variableName = tokens[0].stringView;
+  const expressionTokens = tokens.slice(2, tokens.length);
+  const value = parseAnyTypeExpression(expressionTokens);
 
   return {
-    variableName: tokens[0].stringView,
-    value: parseExpression(tokens.slice(2, tokens.length))
+    variableName, value
   };
 };
 
