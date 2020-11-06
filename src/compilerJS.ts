@@ -7,7 +7,7 @@ const compileExpression = (expression: Expression) => {
   
   const leftStr = expression.leftOperand.stringView;
   const operStr = expression.operator.stringView;
-  return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)}`;
+  return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)};`;
 };
 
 const compileFunctionExpression = (expression: Expression) => {
@@ -41,7 +41,7 @@ const compileAnyTypeExpression = (expression: Expression) => {
 
 const compileAssignment = (assignment: Assignment) => {
   const expression = compileAnyTypeExpression(assignment.value);
-  return `const ${assignment.variableName} = ${expression};`;
+  return `const ${assignment.variableName} = ${expression}`;
 };
 
 const compileStatement = (statement: Statement) => {
