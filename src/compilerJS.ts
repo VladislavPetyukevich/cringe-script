@@ -20,7 +20,7 @@ const compileStatement = (statement: Statement) => {
     case 'Assignment':
       return compileAssignment(statement.value);
     default:
-      throw new Error('Unknown statement');
+      throw new Error(`Unknown statement: ${statement.type}`);
   }
 };
 
