@@ -138,12 +138,12 @@ const splitTokensToStatements = (tokens: Token[]) => {
     }
   );
   if (newLineIndex === -1) {
-    return tokens;
+    return [tokens];
   }
   const lineTokens = tokens.slice(0, newLineIndex);
   const restTokens = tokens.slice(newLineIndex + 1);
   if (restTokens.length) {
-    return [lineTokens, splitTokensToStatements(restTokens)];
+    return [lineTokens, ...splitTokensToStatements(restTokens)];
   } else {
     return [lineTokens];
   }
