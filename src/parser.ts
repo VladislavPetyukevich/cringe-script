@@ -130,14 +130,13 @@ const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositio
 };
 
 const checkIsFunctionExpression = (tokens: Token[]) => {
-  const comma = tokens.find(token => token.type === TokenType.Comma);
-  return !!comma;
+  const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
+  return !!openBrace;
 };
 
 const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
-  const isFunctionExpression = checkIsFunctionExpression(tokens);
-  const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
-  return isFunctionExpression && !openBrace;
+  const openBracket = tokens.find(token => token.type === TokenType.OpenBracket);
+  return !!openBracket;
 };
 
 const parseAnyTypeExpression = (tokens: Token[]) => {
