@@ -2,12 +2,21 @@ import { TokenType, Token } from './tokenizer';
 
 export interface Statement {
   type: StatementType;
-  value: Assignment | Expression | FunctionExpression;
+  value:
+    Assignment |
+    Expression |
+    FunctionExpression |
+    FunctionCompositionExpression;
 }
 
 export interface FunctionExpression {
   args: Token[];
   body: Statement[];
+}
+
+export interface FunctionCompositionExpression {
+  functionNames: Token[];
+  args: Token[];
 }
 
 export interface Expression {
@@ -63,7 +72,6 @@ const parseArgs = (tokens: Token[]) => {
 };
 
 const parseBody = (tokens: Token[]) => {
-  // console.log('tokens: ', tokens);
   const openBraceIndex = tokens.findIndex(
     token => token.type === TokenType.OpenBrace
   );
@@ -87,17 +95,57 @@ const parseFunctionExpression = (tokens: Token[]): FunctionExpression => {
   return { args, body };
 };
 
+const parseFunctionComposition = (tokens: Token[]) => {
+  expectTokenType(
+    tokens[0].type,
+    [TokenType.Name]
+  );
+  if (tokens[1].type === TokenType.Comma) {
+    parseFunctionComposition(tokens.slice(2, tokens.length));
+    return [tokens[0], ...parseFunctionComposition(tokens.slice(2, tokens.length))];
+  }
+  return [tokens[0]];
+};
+
+const parseFunctionCallArgs = (tokens: Token[]) => {
+  if (tokens.length === 0) {
+    return [];
+  }
+  return [tokens[0], ...parseFunctionCallArgs(tokens.slice(2, tokens.length))];
+};
+
+const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositionExpression => {
+  const functionComposition = parseFunctionComposition(tokens);
+  const openBracketIndex = tokens.findIndex(
+    token => token.type === TokenType.OpenBracket
+  );
+  if (openBracketIndex === -1) {
+    throw new Error('Open bracket not found');
+  }
+  const args = parseFunctionCallArgs(tokens.slice(openBracketIndex + 1, tokens.length));
+  return {
+    functionNames: functionComposition,
+    args: args
+  };
+};
+
 const checkIsFunctionExpression = (tokens: Token[]) => {
   const comma = tokens.find(token => token.type === TokenType.Comma);
   return !!comma;
 };
 
+const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
+  const isFunctionExpression = checkIsFunctionExpression(tokens);
+  const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
+  return isFunctionExpression && !openBrace;
+};
+
 const parseAnyTypeExpression = (tokens: Token[]) => {
   const isFunctionExpression = checkIsFunctionExpression(tokens);
-  const value = isFunctionExpression ?
-    parseFunctionExpression(tokens) :
-    parseExpression(tokens)
-  return value;
+  if (isFunctionExpression) {
+    return parseFunctionExpression(tokens);
+  }
+  return parseExpression(tokens);
 };
 
 const parseAssignment = (tokens: Token[]): Assignment => {
@@ -149,7 +197,7 @@ const splitTokensToStatements = (tokens: Token[]) => {
   }
 };
 
-type StatementType = 'Assignment' | 'Expression';
+type StatementType = 'Assignment' | 'Expression' | 'FunctionCompositionExpression';
 
 const checkIsAssignment = (tokens: Token[]) => {
   try {
@@ -167,12 +215,18 @@ const parseStatement = (tokens: Token[]): Statement => {
     return {
       type: 'Assignment',
       value: parseAssignment(tokens)
-    }
-  } else {
+    };
+  }
+  const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
+  if (isFunctionCompositionExpression) {
     return {
-      type: 'Expression',
-      value: parseAnyTypeExpression(tokens)
-    }
+      type: 'FunctionCompositionExpression',
+      value: parseFunctionCompositionExpression(tokens)
+    };
+  }
+  return {
+    type: 'Expression',
+    value: parseAnyTypeExpression(tokens)
   }
 };
 

@@ -2,22 +2,15 @@ import { tokenize } from './tokenizer';
 import { parse } from './parser';
 import { compileJS } from './compilerJS';
 
-// const programText = `
-// count = 5
-// countX2 = 5 * 2
-// sum = a,b {
-//   a + b
-// }
-// countX3 = 5-3*2/23+ 6
-// str = \'a\' + \'b\'
-// `;
 const programText = `
-5 + 5
-sum = 5 + 5
-sum2 = a,b {
-  num = a + b
-  num + num
+count = 5
+countX2 = 5 * 2
+sum = a,b {
+  a + b
 }
+sum(count,countX2)
+countX3 = 5-3*2/23+ 6
+str = \'a\' + \'b\'
 `;
 
 const tokens = tokenize(programText);
