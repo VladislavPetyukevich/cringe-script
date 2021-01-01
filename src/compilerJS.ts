@@ -1,4 +1,4 @@
-import { Statement, Assignment, Expression } from './parser';
+import { Statement, Assignment, Expression, FunctionCompositionExpression } from './parser';
 
 const compileExpression = (expression: Expression) => {
   if (expression.operator === null) {
@@ -44,12 +44,32 @@ const compileAssignment = (assignment: Assignment) => {
   return `const ${assignment.variableName} = ${expression}`;
 };
 
+const compileFunctionComposition = (expression: FunctionCompositionExpression) => {
+  const argsView = expression.args
+    .map(arg => arg.stringView)
+    .join(', ');
+  const functionNameViews = expression.functionNames.map(funName => funName.stringView);
+  const views = [...functionNameViews, argsView];
+  console.log('views :', views );
+  const reduceViews = (views: string[]) => {
+    const currView = views[0];
+    if (views.length === 1) {
+      return currView;
+    }
+    return `${currView}(${reduceViews(views.slice(1, views.length))})`;
+  };
+  const viewsReduced = reduceViews(views);
+  return viewsReduced;
+};
+
 const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Assignment':
       return compileAssignment(statement.value);
     case 'Expression':
       return compileAnyTypeExpression(statement.value);
+    case 'FunctionCompositionExpression':
+      return compileFunctionComposition(statement.value);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
