@@ -11,7 +11,7 @@ sum = a,b {
 pow2 = a {
   a * a
 }
-pow2,sum(count,countX2)
+res = pow2,sum(count,countX2)
 countX3 = 5-3*2/23+ 6
 str = \'a\' + \'b\'
 `;

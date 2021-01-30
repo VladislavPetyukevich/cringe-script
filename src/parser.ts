@@ -141,8 +141,12 @@ const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
 
 const parseAnyTypeExpression = (tokens: Token[]) => {
   const isFunctionExpression = checkIsFunctionExpression(tokens);
+  const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
   if (isFunctionExpression) {
     return parseFunctionExpression(tokens);
+  }
+  if (isFunctionCompositionExpression) {
+    return parseFunctionCompositionExpression(tokens);
   }
   return parseExpression(tokens);
 };

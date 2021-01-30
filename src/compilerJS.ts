@@ -30,13 +30,20 @@ const checkIsFunctionExpression = (expression: Expression) => {
   return !!expression.args;
 };
 
+const checkIsFunctionCompositionExpression = (expression: Expression) => {
+  return !!expression.functionNames;
+};
+
 const compileAnyTypeExpression = (expression: Expression) => {
   const isFunctionExpression = checkIsFunctionExpression(expression);
+  const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(expression);
+  if (isFunctionCompositionExpression) {
+    return compileFunctionComposition(expression);
+  }
   if (isFunctionExpression) {
     return compileFunctionExpression(expression);
-  } else {
-    return compileExpression(expression);
   }
+  return compileExpression(expression);
 };
 
 const compileAssignment = (assignment: Assignment) => {
