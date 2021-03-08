@@ -106,7 +106,7 @@ const parseFunctionCallArgs = (tokens: Token[]) => {
   if (tokens.length === 0) {
     return [];
   }
-  return [tokens[0], ...parseFunctionCallArgs(tokens.slice(2, tokens.length))];
+  return [tokens[0], ...parseFunctionCallArgs(tokens.slice(3, tokens.length))];
 };
 
 const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositionExpression => {

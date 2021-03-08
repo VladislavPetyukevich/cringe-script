@@ -48,7 +48,7 @@ const compileAssignment = (assignment: Assignment) => {
 const compileFunctionComposition = (expression: FunctionCompositionExpression) => {
   const argsView = expression.args
     .map(arg => arg.stringView)
-    .join(', ');
+    .join(')(');
   const functionNameViews = expression.functionNames.map(funName => funName.stringView);
   const views = [...functionNameViews, argsView];
   console.log('views :', views );
