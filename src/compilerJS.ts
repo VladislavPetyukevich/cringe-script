@@ -51,7 +51,6 @@ const compileFunctionComposition = (expression: FunctionCompositionExpression) =
     .join(')(');
   const functionNameViews = expression.functionNames.map(funName => funName.stringView);
   const views = [...functionNameViews, argsView];
-  console.log('views :', views );
   const reduceViews = (views: string[]) => {
     const currView = views[0];
     if (views.length === 1) {
