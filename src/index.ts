@@ -5,13 +5,9 @@ import { compileJS } from './compilerJS';
 const programText = `
 count = 5
 countX2 = 5 * 2
-sum = a,b {
-  a + b
-}
-pow2 = a {
-  a * a
-}
-res = pow2,sum(count,countX2)
+sum = a => b => a + b
+pow2 = a => a * a
+res = pow2,sum(count)(countX2)
 countX3 = 5-3*2/23+ 6
 str = \'a\' + \'b\'
 `;

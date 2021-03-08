@@ -16,14 +16,8 @@ const compileFunctionExpression = (expression: Expression) => {
     .join(', ');
   const body = expression.body
     .map(bodyStatement => compileStatement(bodyStatement))
-    .map((bodyStatement, index, bodyStatements) => {
-      if (index === bodyStatements.length - 1) {
-        return `return ${bodyStatement}`;
-      }
-      return bodyStatement;
-    })
     .join('\n');
-  return `(${args}) => {\n${body}\n}`;
+  return `(${args}) => ${body}`;
 };
 
 const checkIsFunctionExpression = (expression: Expression) => {
