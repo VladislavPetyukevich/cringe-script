@@ -14,6 +14,8 @@ export enum TokenType {
   CloseBrace,   // 12
   OpenBracket,  // 13
   CloseBracket, // 14
+  Greater,      // 15
+  Less,         // 16
 }
 
 const getTokenType = (stringView: string) => {
@@ -49,6 +51,12 @@ const getTokenType = (stringView: string) => {
   }
   if (stringView === ')') {
     return TokenType.CloseBracket;
+  }
+  if (stringView === '>') {
+    return TokenType.Greater;
+  }
+  if (stringView === '<') {
+    return TokenType.Less;
   }
   if (stringView === '\n') {
     return TokenType.NewLine;

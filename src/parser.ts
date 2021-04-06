@@ -49,7 +49,14 @@ const parseExpression = (tokens: Token[]): Expression => {
 
   expectTokenType(
     tokens[1].type,
-    [TokenType.Plus, TokenType.Minus, TokenType.Multiply, TokenType.Devide]
+    [
+      TokenType.Plus,
+      TokenType.Minus,
+      TokenType.Multiply,
+      TokenType.Devide,
+      TokenType.Greater,
+      TokenType.Less,
+    ]
   );
   const rightTokens = tokens.slice(2, tokens.length);
   return {
