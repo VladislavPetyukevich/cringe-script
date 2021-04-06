@@ -1,21 +1,22 @@
 export enum TokenType {
-  Name,         // 0
-  Num,          // 1
-  Str,          // 2
-  Equal,        // 3
-  NewLine,      // 4
-  Multiply,     // 5
-  Devide,       // 6
-  Plus,         // 7
-  Minus,        // 8
-  Quote,        // 9
-  Comma,        // 10
-  OpenBrace,    // 11
-  CloseBrace,   // 12
-  OpenBracket,  // 13
-  CloseBracket, // 14
-  Greater,      // 15
-  Less,         // 16
+  Name,            // 0
+  Num,             // 1
+  Str,             // 2
+  Equal,           // 3
+  NewLine,         // 4
+  Multiply,        // 5
+  Devide,          // 6
+  Plus,            // 7
+  Minus,           // 8
+  Quote,           // 9
+  Comma,           // 10
+  OpenBrace,       // 11
+  CloseBrace,      // 12
+  OpenBracket,     // 13
+  CloseBracket,    // 14
+  Greater,         // 15
+  Less,            // 16
+  ExclamationMark, // 17
 }
 
 const getTokenType = (stringView: string) => {
@@ -57,6 +58,9 @@ const getTokenType = (stringView: string) => {
   }
   if (stringView === '<') {
     return TokenType.Less;
+  }
+  if (stringView === '!') {
+    return TokenType.ExclamationMark;
   }
   if (stringView === '\n') {
     return TokenType.NewLine;

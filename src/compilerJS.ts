@@ -6,7 +6,9 @@ const compileExpression = (expression: Expression) => {
   }
   
   const leftStr = expression.leftOperand.stringView;
-  const operStr = expression.operator.stringView;
+  const operStr = expression.operator.reduce(
+    (accum, currVal) => currVal.stringView + accum,
+    '');
   return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)};`;
 };
 

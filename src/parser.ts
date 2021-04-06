@@ -21,7 +21,7 @@ export interface FunctionCompositionExpression {
 
 export interface Expression {
   leftOperand: Token;
-  operator: null | Token;
+  operator: null | Token[];
   rightOperand: null | Expression;
 }
 
@@ -38,6 +38,30 @@ const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) 
   throw new Error('Unxpected token type');
 };
 
+const parseOperators = (tokens: Token[]) => {
+  if (tokens.length === 0) {
+    return [];
+  }
+  try {
+    expectTokenType(
+      tokens[1].type,
+      [
+        TokenType.Plus,
+        TokenType.Minus,
+        TokenType.Multiply,
+        TokenType.Devide,
+        TokenType.Greater,
+        TokenType.Less,
+        TokenType.Equal,
+        TokenType.ExclamationMark,
+      ]
+    );
+    return [tokens[1], ...parseOperators(tokens.slice(1))];
+  } catch {
+    return [];
+  };
+};
+
 const parseExpression = (tokens: Token[]): Expression => {
   if (tokens.length === 1) {
     return {
@@ -47,21 +71,12 @@ const parseExpression = (tokens: Token[]): Expression => {
     }
   };
 
-  expectTokenType(
-    tokens[1].type,
-    [
-      TokenType.Plus,
-      TokenType.Minus,
-      TokenType.Multiply,
-      TokenType.Devide,
-      TokenType.Greater,
-      TokenType.Less,
-    ]
-  );
-  const rightTokens = tokens.slice(2, tokens.length);
+  const operatorTokens: Token[] = parseOperators(tokens.slice(1));
+  operatorTokens.push(tokens[1]);
+  const rightTokens = tokens.slice(operatorTokens.length + 1, tokens.length);
   return {
     leftOperand: tokens[0],
-    operator: tokens[1],
+    operator: operatorTokens,
     rightOperand: parseExpression(rightTokens)
   };
 };
