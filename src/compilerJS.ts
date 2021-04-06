@@ -1,4 +1,10 @@
-import { Statement, Assignment, Expression, FunctionCompositionExpression } from './parser';
+import {
+  Statement,
+  Assignment,
+  Expression,
+  FunctionCompositionExpression,
+  TernaryIfExpression,
+} from './parser';
 
 const compileExpression = (expression: Expression) => {
   if (expression.operator === null) {
@@ -9,7 +15,7 @@ const compileExpression = (expression: Expression) => {
   const operStr = expression.operator.reduce(
     (accum, currVal) => currVal.stringView + accum,
     '');
-  return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)};`;
+  return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)}`;
 };
 
 const compileFunctionExpression = (expression: Expression) => {
@@ -59,7 +65,6 @@ const compileFunctionComposition = (expression: FunctionCompositionExpression) =
     .join(', ');
   const functionNameViews = expression.functionNames.map(funName => funName.stringView);
   const views = [...functionNameViews, argsView];
-  console.log('views :', views );
   const reduceViews = (views: string[]) => {
     const currView = views[0];
     if (views.length === 1) {
@@ -71,6 +76,22 @@ const compileFunctionComposition = (expression: FunctionCompositionExpression) =
   return viewsReduced;
 };
 
+const compileTernaryIf = (expression: TernaryIfExpression) => {
+  if (expression.condition.length !== 1) {
+    throw new Error('Invalid condition statements count in ternary if');
+  }
+  if (expression.statementTrue.length !== 1) {
+    throw new Error('Invalid statements count in ternary if true');
+  }
+  if (expression.statementFalse.length !== 1) {
+    throw new Error('Invalid statements count in ternary if false');
+  }
+  const conditionView = compileStatement(expression.condition[0]);
+  const statementTrueView = compileStatement(expression.statementTrue[0]);
+  const statementFalseView = compileStatement(expression.statementFalse[0]);
+  return `${conditionView} ? ${statementTrueView} : ${statementFalseView}`;
+};
+
 const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Assignment':
@@ -79,6 +100,8 @@ const compileStatement = (statement: Statement) => {
       return compileAnyTypeExpression(statement.value);
     case 'FunctionCompositionExpression':
       return compileFunctionComposition(statement.value);
+    case 'TernaryIf':
+      return compileTernaryIf(statement.value);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
@@ -86,7 +109,7 @@ const compileStatement = (statement: Statement) => {
 
 export const compileJS = (statements: Statement[]) => {
   const compiledStatements = statements.map(
-    statement => compileStatement(statement)
+    statement => `${compileStatement(statement)};`
   );
   return compiledStatements.join('\n');
 };

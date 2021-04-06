@@ -17,6 +17,8 @@ export enum TokenType {
   Greater,         // 15
   Less,            // 16
   ExclamationMark, // 17
+  Colon,           // 18
+  QuestionMark,    // 19
 }
 
 const getTokenType = (stringView: string) => {
@@ -61,6 +63,12 @@ const getTokenType = (stringView: string) => {
   }
   if (stringView === '!') {
     return TokenType.ExclamationMark;
+  }
+  if (stringView === ':') {
+    return TokenType.Colon;
+  }
+  if (stringView === '?') {
+    return TokenType.QuestionMark;
   }
   if (stringView === '\n') {
     return TokenType.NewLine;

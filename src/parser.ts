@@ -6,7 +6,8 @@ export interface Statement {
     Assignment |
     Expression |
     FunctionExpression |
-    FunctionCompositionExpression;
+    FunctionCompositionExpression |
+    TernaryIfExpression;
 }
 
 export interface FunctionExpression {
@@ -28,6 +29,12 @@ export interface Expression {
 export interface Assignment {
   variableName: string;
   value: Expression | FunctionExpression;
+}
+
+export interface TernaryIfExpression  {
+  condition: Statement[];
+  statementTrue: Statement[];
+  statementFalse: Statement[];
 }
 
 const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) => {
@@ -151,9 +158,37 @@ const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositio
   };
 };
 
+const parseTernaryIf = (tokens: Token[]): TernaryIfExpression => {
+  const questionIndex = tokens.findIndex(token => token.type === TokenType.QuestionMark);
+  if (questionIndex === -1) {
+    throw new Error('Question mark not found');
+  }
+  const colonIndex = tokens.findIndex(token => token.type === TokenType.Colon);
+  if (colonIndex === -1) {
+    throw new Error('Colon not found');
+  }
+  const conditionTokens = tokens.slice(0, questionIndex);
+  const statementTrueTokens = tokens.slice(questionIndex + 1, colonIndex);
+  const statementFalseTokens = tokens.slice(colonIndex + 1, tokens.length + 1);
+  const statementCondition = parse(conditionTokens);
+  const statementTrue = parse(statementTrueTokens);
+  const statementFalse = parse(statementFalseTokens);
+  return {
+    condition: statementCondition,
+    statementTrue: statementTrue,
+    statementFalse: statementFalse,
+  };
+};
+
 const checkIsFunctionExpression = (tokens: Token[]) => {
   const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
   return !!openBrace;
+};
+
+const checkIsTernaryIfExpression = (tokens: Token[]) => {
+  const questionMark = tokens.find(token => token.type === TokenType.QuestionMark);
+  const colon = tokens.find(token => token.type === TokenType.Colon);
+  return !!colon && !!questionMark;
 };
 
 const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
@@ -164,11 +199,15 @@ const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
 const parseAnyTypeExpression = (tokens: Token[]) => {
   const isFunctionExpression = checkIsFunctionExpression(tokens);
   const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
+  const isTernaryIf = checkIsTernaryIfExpression(tokens);
   if (isFunctionExpression) {
     return parseFunctionExpression(tokens);
   }
   if (isFunctionCompositionExpression) {
     return parseFunctionCompositionExpression(tokens);
+  }
+  if (isTernaryIf) {
+    return parseTernaryIf(tokens);
   }
   return parseExpression(tokens);
 };
@@ -222,7 +261,11 @@ const splitTokensToStatements = (tokens: Token[]) => {
   }
 };
 
-type StatementType = 'Assignment' | 'Expression' | 'FunctionCompositionExpression';
+type StatementType =
+  'Assignment' |
+  'Expression' |
+  'FunctionCompositionExpression' |
+  'TernaryIf';
 
 const checkIsAssignment = (tokens: Token[]) => {
   try {
@@ -248,6 +291,13 @@ const parseStatement = (tokens: Token[]): Statement => {
       type: 'FunctionCompositionExpression',
       value: parseFunctionCompositionExpression(tokens)
     };
+  }
+  const isTernaryIf = checkIsTernaryIfExpression(tokens);
+  if (isTernaryIf) {
+    return {
+      type: 'TernaryIf',
+      value: parseAnyTypeExpression(tokens)
+    }
   }
   return {
     type: 'Expression',
