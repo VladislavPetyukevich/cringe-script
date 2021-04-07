@@ -24,14 +24,8 @@ const compileFunctionExpression = (expression: Expression) => {
     .join(', ');
   const body = expression.body
     .map(bodyStatement => compileStatement(bodyStatement))
-    .map((bodyStatement, index, bodyStatements) => {
-      if (index === bodyStatements.length - 1) {
-        return `return ${bodyStatement}`;
-      }
-      return bodyStatement;
-    })
     .join('\n');
-  return `(${args}) => {\n${body}\n}`;
+  return `(${args}) => ${body}`;
 };
 
 const checkIsFunctionExpression = (expression: Expression) => {
@@ -62,7 +56,7 @@ const compileAssignment = (assignment: Assignment) => {
 const compileFunctionComposition = (expression: FunctionCompositionExpression) => {
   const argsView = expression.args
     .map(arg => arg.stringView)
-    .join(', ');
+    .join(')(');
   const functionNameViews = expression.functionNames.map(funName => funName.stringView);
   const views = [...functionNameViews, argsView];
   const reduceViews = (views: string[]) => {

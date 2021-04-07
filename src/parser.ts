@@ -90,30 +90,25 @@ const parseExpression = (tokens: Token[]): Expression => {
 
 const parseArgs = (tokens: Token[]) => {
   expectTokenType(tokens[0].type, [TokenType.Name]);
-  if (tokens.length === 1) {
-    return tokens;
-  }
-  if (tokens[1].type === TokenType.OpenBrace) {
-    return [tokens[0]];
-  }
-  expectTokenType(tokens[1].type, [TokenType.Comma]);
-  return [tokens[0], ...parseArgs(tokens.slice(2, tokens.length))];
+  expectTokenType(tokens[1].type, [TokenType.Equal]);
+  expectTokenType(tokens[2].type, [TokenType.Greater]);
+  return [tokens[0]];
 };
 
 const parseBody = (tokens: Token[]) => {
-  const openBraceIndex = tokens.findIndex(
-    token => token.type === TokenType.OpenBrace
+  const equalIndex = tokens.findIndex(
+    token => token.type === TokenType.Equal
   );
-  if (openBraceIndex === -1) {
-    throw new Error('Open brace not found');
-  }
-  const closeBraceIndex = tokens.findIndex(
-    token => token.type === TokenType.CloseBrace
+  const greaterIndex = tokens.findIndex(
+    token => token.type === TokenType.Greater
   );
-  if (closeBraceIndex === -1) {
-    throw new Error('Close brace not found');
+  if (
+    (equalIndex === -1) ||
+    (greaterIndex === -1)
+  ) {
+    throw new Error('=> symbol not found');
   }
-  const body = tokens.slice(openBraceIndex + 2, closeBraceIndex - 1);
+  const body = tokens.slice(greaterIndex + 1, tokens.length);
   const bodyStatements = parse(body);
   return bodyStatements;
 };
@@ -140,7 +135,7 @@ const parseFunctionCallArgs = (tokens: Token[]) => {
   if (tokens.length === 0) {
     return [];
   }
-  return [tokens[0], ...parseFunctionCallArgs(tokens.slice(2, tokens.length))];
+  return [tokens[0], ...parseFunctionCallArgs(tokens.slice(3, tokens.length))];
 };
 
 const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositionExpression => {
@@ -181,8 +176,9 @@ const parseTernaryIf = (tokens: Token[]): TernaryIfExpression => {
 };
 
 const checkIsFunctionExpression = (tokens: Token[]) => {
-  const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
-  return !!openBrace;
+  const greater = tokens.find(token => token.type === TokenType.Greater);
+  const equal = tokens.find(token => token.type === TokenType.Equal);
+  return !!greater && !!equal;
 };
 
 const checkIsTernaryIfExpression = (tokens: Token[]) => {
@@ -271,7 +267,12 @@ const checkIsAssignment = (tokens: Token[]) => {
   try {
     expectTokenType(tokens[0].type, [TokenType.Name]);
     expectTokenType(tokens[1].type, [TokenType.Equal]);
-    return true;
+    try {
+      expectTokenType(tokens[2].type, [TokenType.Greater]);
+      return false;
+    } catch {
+      return true;
+    }
   } catch {
     return false;
   }
