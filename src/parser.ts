@@ -7,7 +7,8 @@ export interface Statement {
     Expression |
     FunctionExpression |
     FunctionCompositionExpression |
-    TernaryIfExpression;
+    TernaryIfExpression |
+    ObjectDefenitionExpression;
 }
 
 export interface FunctionExpression {
@@ -25,10 +26,20 @@ export interface Expression {
   operator: null | Token[];
   rightOperand: null | Expression;
 }
+
 export interface TernaryIfExpression  {
   condition: Statement[];
   statementTrue: Statement[];
   statementFalse: Statement[];
+}
+
+export interface ObjectDefenitionField {
+  name: string;
+  value: Statement;
+}
+
+export interface ObjectDefenitionExpression {
+  fields: ObjectDefenitionField[];
 }
 
 export interface Assignment {
@@ -174,6 +185,39 @@ const parseTernaryIf = (tokens: Token[]): TernaryIfExpression => {
   };
 };
 
+const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
+  const tokensToSkip = [
+    TokenType.OpenBrace,
+    TokenType.NewLine,
+    TokenType.Colon,
+    TokenType.CloseBrace
+  ];
+  const objectData = tokens.reduce((accum, token) => {
+    if (tokensToSkip.indexOf(token.type) !== -1) {
+      return accum;
+    }
+    if (!!accum.buffer) {
+      return {
+        fields: [
+          ...accum.fields,
+          { name: accum.buffer, value: token }
+        ],
+        buffer: ''
+      };
+    }
+    return {
+      ...accum,
+      buffer: token.stringView
+    };
+  }, { fields: [], buffer: '' });
+  const fields = objectData.fields.map(
+    field => ({ name: field.name, value: parse([field.value])[0]})
+  );
+  return {
+    fields: fields
+  };
+};
+
 const checkIsFunctionExpression = (tokens: Token[]) => {
   const greater = tokens.find(token => token.type === TokenType.Greater);
   const equal = tokens.find(token => token.type === TokenType.Equal);
@@ -184,6 +228,13 @@ const checkIsTernaryIfExpression = (tokens: Token[]) => {
   const questionMark = tokens.find(token => token.type === TokenType.QuestionMark);
   const colon = tokens.find(token => token.type === TokenType.Colon);
   return !!colon && !!questionMark;
+};
+
+const checkIsObjectExpression = (tokens: Token[]) => {
+  const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
+  const closeBrace = tokens.find(token => token.type === TokenType.CloseBrace);
+  const colon = tokens.find(token => token.type === TokenType.Colon);
+  return !!openBrace && !!closeBrace && !!colon;
 };
 
 const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
@@ -260,7 +311,8 @@ type StatementType =
   'Assignment' |
   'Expression' |
   'FunctionCompositionExpression' |
-  'TernaryIf';
+  'TernaryIf' |
+  'ObjectDefenition';
 
 const checkIsAssignment = (tokens: Token[]) => {
   try {
@@ -298,6 +350,13 @@ const parseStatement = (tokens: Token[]): Statement => {
       type: 'TernaryIf',
       value: parseAnyTypeExpression(tokens)
     }
+  }
+  const isObject = checkIsObjectExpression(tokens);
+  if (isObject) {
+    return {
+      type: 'ObjectDefenition',
+      value: parseObjectDefenition(tokens)
+    };
   }
   return {
     type: 'Expression',

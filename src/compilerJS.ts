@@ -4,6 +4,7 @@ import {
   Expression,
   FunctionCompositionExpression,
   TernaryIfExpression,
+  ObjectDefenitionExpression,
 } from './parser';
 
 const compileExpression = (expression: Expression) => {
@@ -104,6 +105,14 @@ const compileTernaryIf = (expression: TernaryIfExpression) => {
   return `${conditionView} ? ${statementTrueView} : ${statementFalseView}`;
 };
 
+const compileObjectDefenition = (expression: ObjectDefenitionExpression) => {
+  const objectFieldsView = expression.fields.reduce((accum, field) => {
+    const fieldValueView = compileAnyTypeExpression(field.value.value);
+    return [...accum, `  ${field.name}: ${fieldValueView}`];
+  }, []).join(',\n');
+  return `{\n${objectFieldsView}\n}`;
+};
+
 const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Assignment':
@@ -114,6 +123,8 @@ const compileStatement = (statement: Statement) => {
       return compileFunctionComposition(statement.value);
     case 'TernaryIf':
       return compileTernaryIf(statement.value);
+    case 'ObjectDefenition':
+      return compileObjectDefenition(statement.value);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
