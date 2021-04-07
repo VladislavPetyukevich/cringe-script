@@ -28,6 +28,16 @@ const compileFunctionExpression = (expression: Expression) => {
   return `(${args}) => ${body}`;
 };
 
+const compileTernaryIfExpression = (expression: Expression) => {
+  const conditionExpression = expression.condition[0].value;
+  const conditionView = compileAnyTypeExpression(conditionExpression);
+  const statementTrueExpression = expression.statementTrue[0].value;
+  const statementTrueView = compileAnyTypeExpression(statementTrueExpression);
+  const statementFalseExpression = expression.statementFalse[0].value;
+  const statementFalseView = compileAnyTypeExpression(statementFalseExpression);
+  return `(${conditionView}) ? ${statementTrueView} : ${statementFalseView}`;
+};
+
 const checkIsFunctionExpression = (expression: Expression) => {
   return !!expression.args;
 };
@@ -36,14 +46,22 @@ const checkIsFunctionCompositionExpression = (expression: Expression) => {
   return !!expression.functionNames;
 };
 
+const checkIsTernaryIfExpression = (expression: Expression) => {
+  return !!expression.condition;
+};
+
 const compileAnyTypeExpression = (expression: Expression) => {
   const isFunctionExpression = checkIsFunctionExpression(expression);
   const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(expression);
+  const isTernaryIfExpression = checkIsTernaryIfExpression(expression);
   if (isFunctionCompositionExpression) {
     return compileFunctionComposition(expression);
   }
   if (isFunctionExpression) {
     return compileFunctionExpression(expression);
+  }
+  if (isTernaryIfExpression) {
+    return compileTernaryIfExpression(expression);
   }
   return compileExpression(expression);
 };

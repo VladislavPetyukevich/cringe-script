@@ -10,7 +10,7 @@ pow2 = a => a * a
 res = pow2,sum(count)(countX2)
 countX3 = 5-3*2/23+ 6
 str = \'a\' + \'b\'
-5 > 3 ? 5 : 3
+countIf = 5 > 3 ? 5 : 3
 `;
 
 const tokens = tokenize(programText);

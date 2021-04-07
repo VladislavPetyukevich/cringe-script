@@ -25,16 +25,15 @@ export interface Expression {
   operator: null | Token[];
   rightOperand: null | Expression;
 }
-
-export interface Assignment {
-  variableName: string;
-  value: Expression | FunctionExpression;
-}
-
 export interface TernaryIfExpression  {
   condition: Statement[];
   statementTrue: Statement[];
   statementFalse: Statement[];
+}
+
+export interface Assignment {
+  variableName: string;
+  value: Expression | FunctionExpression | TernaryIfExpression;
 }
 
 const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) => {
