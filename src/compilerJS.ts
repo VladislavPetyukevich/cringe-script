@@ -51,10 +51,16 @@ const checkIsTernaryIfExpression = (expression: Expression) => {
   return !!expression.condition;
 };
 
+const checkIsObjectDefenitionExpression = (expression: Expression) => {
+  console.log('expression:', expression);
+  return !!expression.fields;
+};
+
 const compileAnyTypeExpression = (expression: Expression) => {
   const isFunctionExpression = checkIsFunctionExpression(expression);
   const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(expression);
   const isTernaryIfExpression = checkIsTernaryIfExpression(expression);
+  const isObjectDefenitionExpression = checkIsObjectDefenitionExpression(expression);
   if (isFunctionCompositionExpression) {
     return compileFunctionComposition(expression);
   }
@@ -63,6 +69,9 @@ const compileAnyTypeExpression = (expression: Expression) => {
   }
   if (isTernaryIfExpression) {
     return compileTernaryIfExpression(expression);
+  }
+  if (isObjectDefenitionExpression) {
+    return compileObjectDefenition(expression);
   }
   return compileExpression(expression);
 };

@@ -246,6 +246,7 @@ const parseAnyTypeExpression = (tokens: Token[]) => {
   const isFunctionExpression = checkIsFunctionExpression(tokens);
   const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
   const isTernaryIf = checkIsTernaryIfExpression(tokens);
+  const isObjectDefenitonExpression = checkIsObjectExpression(tokens);
   if (isFunctionExpression) {
     return parseFunctionExpression(tokens);
   }
@@ -254,6 +255,9 @@ const parseAnyTypeExpression = (tokens: Token[]) => {
   }
   if (isTernaryIf) {
     return parseTernaryIf(tokens);
+  }
+  if (isObjectDefenitonExpression) {
+    return parseObjectDefenition(tokens);
   }
   return parseExpression(tokens);
 };
