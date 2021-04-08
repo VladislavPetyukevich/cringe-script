@@ -52,7 +52,6 @@ const checkIsTernaryIfExpression = (expression: Expression) => {
 };
 
 const checkIsObjectDefenitionExpression = (expression: Expression) => {
-  console.log('expression:', expression);
   return !!expression.fields;
 };
 
@@ -71,7 +70,7 @@ const compileAnyTypeExpression = (expression: Expression) => {
     return compileTernaryIfExpression(expression);
   }
   if (isObjectDefenitionExpression) {
-    return compileObjectDefenition(expression);
+    return compileObjectDefenition(expression, 1);
   }
   return compileExpression(expression);
 };
@@ -114,12 +113,22 @@ const compileTernaryIf = (expression: TernaryIfExpression) => {
   return `${conditionView} ? ${statementTrueView} : ${statementFalseView}`;
 };
 
-const compileObjectDefenition = (expression: ObjectDefenitionExpression) => {
+const getIndentView = (nestedLevel: number) => {
+  return Array.from({ length: nestedLevel }, () => '  ').join('');
+};
+
+const compileObjectDefenition = (expression: ObjectDefenitionExpression, nestedLevel: number) => {
+  const indentViewInside = getIndentView(nestedLevel);
   const objectFieldsView = expression.fields.reduce((accum, field) => {
-    const fieldValueView = compileAnyTypeExpression(field.value.value);
-    return [...accum, `  ${field.name}: ${fieldValueView}`];
+    const fieldValue = field.value.value;
+    const fieldValueView =
+      ('fields' in fieldValue.leftOperand) ?
+      compileObjectDefenition(field.value.value.leftOperand, nestedLevel + 1) :
+      compileAnyTypeExpression(field.value.value);
+    return [...accum, `${indentViewInside}${field.name}: ${fieldValueView}`];
   }, []).join(',\n');
-  return `{\n${objectFieldsView}\n}`;
+  const indentViewOutside = getIndentView(nestedLevel - 1);
+  return `{\n${objectFieldsView}\n${indentViewOutside}}`;
 };
 
 const compileStatement = (statement: Statement) => {
@@ -133,7 +142,7 @@ const compileStatement = (statement: Statement) => {
     case 'TernaryIf':
       return compileTernaryIf(statement.value);
     case 'ObjectDefenition':
-      return compileObjectDefenition(statement.value);
+      return compileObjectDefenition(statement.value, 1);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }

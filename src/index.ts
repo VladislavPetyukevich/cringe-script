@@ -13,7 +13,13 @@ str = \'a\' + \'b\'
 countIf = 5 > 3 ? 5 : 3
 pair = {
   first: 3
-  second: 5
+  second: {
+    first: 5
+    second: {
+      first: 8
+      second: 13
+    }
+  }
 }
 `;
 

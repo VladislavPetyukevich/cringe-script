@@ -35,7 +35,7 @@ export interface TernaryIfExpression  {
 
 export interface ObjectDefenitionField {
   name: string;
-  value: Statement;
+  value: Statement | ObjectDefenitionField[];
 }
 
 export interface ObjectDefenitionExpression {
@@ -187,17 +187,50 @@ const parseTernaryIf = (tokens: Token[]): TernaryIfExpression => {
 
 const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
   const tokensToSkip = [
-    TokenType.OpenBrace,
     TokenType.NewLine,
     TokenType.Colon,
-    TokenType.CloseBrace
   ];
-  const objectData = tokens.reduce((accum, token) => {
+  const bodyTokens = tokens.slice(1, tokens.length - 1);
+  const objectData = bodyTokens.reduce((accum, token, index) => {
+    if (index < accum.nestedCloseBraceIndex) {
+      return accum;
+    }
+    if (token.type === TokenType.OpenBrace) {
+      let braceOpenedCount = 0;
+      const closeBraceIndex = tokens.findIndex(
+        (token, nestedIndex) => {
+          if (token.type === TokenType.OpenBrace) {
+            braceOpenedCount++;
+          } else if (token.type === TokenType.CloseBrace) {
+            braceOpenedCount--;
+          }
+          const isCloseBrace = token.type === TokenType.CloseBrace;
+          const isAfterNestedIndex = nestedIndex > index;
+          const isRootBraceClosed = braceOpenedCount === 0;
+          return isCloseBrace && isAfterNestedIndex && isRootBraceClosed;
+        }
+      );
+      if (closeBraceIndex === -1) {
+        throw new Error('Close Brace not found in nested object');
+      }
+      const nestedObjectTokens = tokens.slice(index + 1, closeBraceIndex + 1);
+      const nestedObjectFields = parseObjectDefenition(nestedObjectTokens);
+      return {
+        ...accum,
+        fields: [
+          ...accum.fields,
+          { name: accum.buffer, value: nestedObjectFields }
+        ],
+        buffer: '',
+        nestedCloseBraceIndex: closeBraceIndex
+      };
+    }
     if (tokensToSkip.indexOf(token.type) !== -1) {
       return accum;
     }
     if (!!accum.buffer) {
       return {
+        ...accum,
         fields: [
           ...accum.fields,
           { name: accum.buffer, value: token }
@@ -207,9 +240,9 @@ const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
     }
     return {
       ...accum,
-      buffer: token.stringView
+      buffer: token.stringView,
     };
-  }, { fields: [], buffer: '' });
+  }, { fields: [], buffer: '', nestedCloseBraceIndex: 0 });
   const fields = objectData.fields.map(
     field => ({ name: field.name, value: parse([field.value])[0]})
   );
@@ -257,7 +290,8 @@ const parseAnyTypeExpression = (tokens: Token[]) => {
     return parseTernaryIf(tokens);
   }
   if (isObjectDefenitonExpression) {
-    return parseObjectDefenition(tokens);
+    const objectParsed = parseObjectDefenition(tokens);
+    return objectParsed;
   }
   return parseExpression(tokens);
 };
