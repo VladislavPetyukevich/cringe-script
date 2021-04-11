@@ -4,6 +4,7 @@ import { compileJS } from './compilerJS';
 
 const programText = `
 // some program comment
+count = 1
 countX2 = 5 * 2
 sum = a => b => a + b
 pow2 = a => a * a

@@ -34,13 +34,13 @@ export interface TernaryIfExpression  {
   statementFalse: Statement[];
 }
 
-export interface ObjectDefenitionField {
+export interface ObjectParserFields {
   name: string;
-  value: Statement | ObjectDefenitionField[];
+  value: Statement | ObjectFieldsParserState;
 }
 
 export interface ObjectDefenitionExpression {
-  fields: ObjectDefenitionField[];
+  fields: ObjectParserFields[];
 }
 
 export interface CommentExpression {
@@ -49,7 +49,12 @@ export interface CommentExpression {
 
 export interface Assignment {
   variableName: string;
-  value: Expression | FunctionExpression | TernaryIfExpression;
+  value:
+    Expression |
+    FunctionExpression |
+    FunctionCompositionExpression |
+    TernaryIfExpression |
+    ObjectDefenitionExpression;
 }
 
 const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) => {
@@ -60,7 +65,7 @@ const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) 
   throw new Error('Unxpected token type');
 };
 
-const parseOperators = (tokens: Token[]) => {
+const parseOperators = (tokens: Token[]): Token[] => {
   if (tokens.length === 0) {
     return [];
   }
@@ -134,7 +139,7 @@ const parseFunctionExpression = (tokens: Token[]): FunctionExpression => {
   return { args, body };
 };
 
-const parseFunctionComposition = (tokens: Token[]) => {
+const parseFunctionComposition = (tokens: Token[]): Token[] => {
   expectTokenType(
     tokens[0].type,
     [TokenType.Name]
@@ -146,7 +151,7 @@ const parseFunctionComposition = (tokens: Token[]) => {
   return [tokens[0]];
 };
 
-const parseFunctionCallArgs = (tokens: Token[]) => {
+const parseFunctionCallArgs = (tokens: Token[]): Token[] => {
   if (tokens.length === 0) {
     return [];
   }
@@ -190,69 +195,101 @@ const parseTernaryIf = (tokens: Token[]): TernaryIfExpression => {
   };
 };
 
-const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
-  const tokensToSkip = [
-    TokenType.NewLine,
-    TokenType.Colon,
-  ];
-  const bodyTokens = tokens.slice(1, tokens.length - 1);
-  const objectData = bodyTokens.reduce((accum, token, index) => {
-    if (index < accum.nestedCloseBraceIndex) {
-      return accum;
-    }
-    if (token.type === TokenType.OpenBrace) {
-      let braceOpenedCount = 0;
-      const closeBraceIndex = tokens.findIndex(
-        (token, nestedIndex) => {
-          if (token.type === TokenType.OpenBrace) {
-            braceOpenedCount++;
-          } else if (token.type === TokenType.CloseBrace) {
-            braceOpenedCount--;
-          }
-          const isCloseBrace = token.type === TokenType.CloseBrace;
-          const isAfterNestedIndex = nestedIndex > index;
-          const isRootBraceClosed = braceOpenedCount === 0;
-          return isCloseBrace && isAfterNestedIndex && isRootBraceClosed;
-        }
-      );
-      if (closeBraceIndex === -1) {
-        throw new Error('Close Brace not found in nested object');
+interface ObjectFieldsParserState {
+  fields: ObjectParserFields[];
+  bufferName: string;
+  bufferValue: Token[];
+  nestedCloseBraceIndex: number;
+  isParsingFieldValue: boolean;
+}
+
+const parseObjectFields = (tokens: Token[]): ObjectFieldsParserState =>{
+  const objectFieldsParserStateInitial =
+    { fields: [], bufferName: '', bufferValue: [], nestedCloseBraceIndex: 0, isParsingFieldValue: false }
+  const objectFieldsParserState =
+    tokens.reduce((accum: ObjectFieldsParserState, token, index): ObjectFieldsParserState => {
+      if (index < accum.nestedCloseBraceIndex) {
+        return accum;
       }
-      const nestedObjectTokens = tokens.slice(index + 2, closeBraceIndex + 1);
-      const nestedObjectFields = parseObjectDefenition(nestedObjectTokens);
+      if (token.type === TokenType.Colon) {
+        return {
+          ...accum,
+          isParsingFieldValue: true
+        };
+      }
+      if (token.type === TokenType.NewLine) {
+        return {
+          ...accum,
+          fields: [
+            ...accum.fields,
+            { name: accum.bufferName, value: parse(accum.bufferValue)[0] }
+          ],
+          isParsingFieldValue: false,
+          bufferName: '',
+          bufferValue: []
+        };
+      }
+      if (token.type === TokenType.OpenBrace) {
+        let braceOpenedCount = 0;
+        const closeBraceIndex = tokens.findIndex(
+          (token, nestedIndex) => {
+            if (token.type === TokenType.OpenBrace) {
+              braceOpenedCount++;
+            } else if (token.type === TokenType.CloseBrace) {
+              braceOpenedCount--;
+            }
+            const isCloseBrace = token.type === TokenType.CloseBrace;
+            const isAfterNestedIndex = nestedIndex > index;
+            const isRootBraceClosed = braceOpenedCount === 0;
+            return isCloseBrace && isAfterNestedIndex && isRootBraceClosed;
+          }
+        );
+        if (closeBraceIndex === -1) {
+          throw new Error('Close Brace not found in nested object');
+        }
+        const nestedObjectTokens = tokens.slice(index + 2, closeBraceIndex);
+        const nestedObjectFields = parseObjectFields(nestedObjectTokens);
+        return {
+          ...accum,
+          fields: [
+            ...accum.fields,
+            { name: accum.bufferName, value: nestedObjectFields }
+          ],
+          nestedCloseBraceIndex: closeBraceIndex + 2,
+          isParsingFieldValue: false,
+          bufferName: '',
+          bufferValue: []
+        };
+      }
+      if (accum.isParsingFieldValue) {
+        return {
+          ...accum,
+          bufferValue: [
+            ...accum.bufferValue,
+            token
+          ]
+        };
+      }
       return {
         ...accum,
-        fields: [
-          ...accum.fields,
-          { name: accum.buffer, value: nestedObjectFields }
-        ],
-        buffer: '',
-        nestedCloseBraceIndex: closeBraceIndex
+        bufferName: token.stringView
       };
+    }, objectFieldsParserStateInitial);
+    if (
+      (objectFieldsParserState.bufferName !== objectFieldsParserStateInitial.bufferName) ||
+      (objectFieldsParserState.isParsingFieldValue !== objectFieldsParserStateInitial.isParsingFieldValue) ||
+      (objectFieldsParserState.bufferValue.length !== objectFieldsParserStateInitial.bufferValue.length)
+    ) {
+      throw new Error('Error while parsing object');
     }
-    if (tokensToSkip.indexOf(token.type) !== -1) {
-      return accum;
-    }
-    if (!!accum.buffer) {
-      return {
-        ...accum,
-        fields: [
-          ...accum.fields,
-          { name: accum.buffer, value: token }
-        ],
-        buffer: ''
-      };
-    }
-    return {
-      ...accum,
-      buffer: token.stringView,
-    };
-  }, { fields: [], buffer: '', nestedCloseBraceIndex: 0 });
-  const fields = objectData.fields.map(
-    field => ({ name: field.name, value: parse([field.value])[0]})
-  );
+    return objectFieldsParserState;
+};
+
+const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
+  const bodyTokens = tokens.slice(2, tokens.length - 1);
+  const objectData = parseObjectFields(bodyTokens);
   return {
-    fields: fields
+    fields: objectData.fields
   };
 };
 
@@ -332,9 +369,9 @@ const parseAssignment = (tokens: Token[]): Assignment => {
   };
 };
 
-const splitTokensToStatements = (tokens: Token[]) => {
+const splitTokensToStatements = (tokens: Token[]): Token[][] => {
   if (tokens.length === 0) {
-    return tokens;
+    return [];
   }
 
   let openBraceCount = 0;
