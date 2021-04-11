@@ -213,7 +213,7 @@ const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
       if (closeBraceIndex === -1) {
         throw new Error('Close Brace not found in nested object');
       }
-      const nestedObjectTokens = tokens.slice(index + 1, closeBraceIndex + 1);
+      const nestedObjectTokens = tokens.slice(index + 2, closeBraceIndex + 1);
       const nestedObjectFields = parseObjectDefenition(nestedObjectTokens);
       return {
         ...accum,
@@ -311,7 +311,7 @@ const splitTokensToStatements = (tokens: Token[]) => {
     return tokens;
   }
 
-  let isBodyOpen = false;
+  let openBraceCount = 0;
   const newLineIndex = tokens.findIndex(
     (token, index) => {
       if (token.type !== TokenType.NewLine) {
@@ -320,14 +320,16 @@ const splitTokensToStatements = (tokens: Token[]) => {
       const prevToken = tokens[index - 1];
       const nextToken = tokens[index + 1];
       if (prevToken && (prevToken.type === TokenType.OpenBrace)) {
-        isBodyOpen = true;
+        openBraceCount++;
         return false;
       }
       if (nextToken && (nextToken.type === TokenType.CloseBrace)) {
-        isBodyOpen = false;
-        return false;
+        openBraceCount--;
+        if (openBraceCount === 0) {
+         return false;
+        }
       }
-      if (isBodyOpen) {
+      if (openBraceCount > 0) {
         return false;
       }
       return true;

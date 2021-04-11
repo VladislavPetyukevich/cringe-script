@@ -19,6 +19,7 @@ pair = {
       first: 8
       second: 13
     }
+    additional: 123
   }
 }
 `;
