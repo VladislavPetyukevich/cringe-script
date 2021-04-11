@@ -109,9 +109,13 @@ const parseExpression = (tokens: Token[]): Expression => {
 };
 
 const parseArgs = (tokens: Token[]) => {
-  expectTokenType(tokens[0].type, [TokenType.Name]);
-  expectTokenType(tokens[1].type, [TokenType.Equal]);
-  expectTokenType(tokens[2].type, [TokenType.Greater]);
+  try {
+    expectTokenType(tokens[0].type, [TokenType.Name]);
+    expectTokenType(tokens[1].type, [TokenType.Equal]);
+    expectTokenType(tokens[2].type, [TokenType.Greater]);
+  } catch {
+    throw new Error('Invalid arguments in function defenition');
+  }
   return [tokens[0]];
 };
 
