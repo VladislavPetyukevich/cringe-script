@@ -5,6 +5,7 @@ import {
   FunctionCompositionExpression,
   TernaryIfExpression,
   ObjectDefenitionExpression,
+  CommentExpression,
 } from './parser';
 
 const compileExpression = (expression: Expression) => {
@@ -131,6 +132,10 @@ const compileObjectDefenition = (expression: ObjectDefenitionExpression, nestedL
   return `{\n${objectFieldsView}\n${indentViewOutside}}`;
 };
 
+const compileComment = (expression: CommentExpression) => {
+  return `// ${expression.content}`;
+};
+
 const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Assignment':
@@ -143,14 +148,18 @@ const compileStatement = (statement: Statement) => {
       return compileTernaryIf(statement.value);
     case 'ObjectDefenition':
       return compileObjectDefenition(statement.value, 1);
+    case 'Comment':
+      return compileComment(statement.value);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
 };
 
 export const compileJS = (statements: Statement[]) => {
-  const compiledStatements = statements.map(
-    statement => `${compileStatement(statement)};`
+  const compiledStatements = statements.map(statement => {
+    const endLine = (statement.type === 'Comment') ? '' : ';';
+    return `${compileStatement(statement)}${endLine}`;
+  }
   );
   return compiledStatements.join('\n');
 };

@@ -3,7 +3,7 @@ import { parse } from './parser';
 import { compileJS } from './compilerJS';
 
 const programText = `
-count = 5
+// some program comment
 countX2 = 5 * 2
 sum = a => b => a + b
 pow2 = a => a * a

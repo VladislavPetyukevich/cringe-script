@@ -8,7 +8,8 @@ export interface Statement {
     FunctionExpression |
     FunctionCompositionExpression |
     TernaryIfExpression |
-    ObjectDefenitionExpression;
+    ObjectDefenitionExpression |
+    CommentExpression;
 }
 
 export interface FunctionExpression {
@@ -40,6 +41,10 @@ export interface ObjectDefenitionField {
 
 export interface ObjectDefenitionExpression {
   fields: ObjectDefenitionField[];
+}
+
+export interface CommentExpression {
+  content: string;
 }
 
 export interface Assignment {
@@ -251,6 +256,16 @@ const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpression => {
   };
 };
 
+const parseComment = (tokens: Token[]): CommentExpression => {
+  const content = tokens.slice(2).reduce(
+    (accum, currToken) => accum + currToken.stringView,
+    ''
+  );
+  return {
+    content: content
+  };
+};
+
 const checkIsFunctionExpression = (tokens: Token[]) => {
   const greater = tokens.find(token => token.type === TokenType.Greater);
   const equal = tokens.find(token => token.type === TokenType.Equal);
@@ -273,6 +288,17 @@ const checkIsObjectExpression = (tokens: Token[]) => {
 const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
   const openBracket = tokens.find(token => token.type === TokenType.OpenBracket);
   return !!openBracket;
+};
+
+const checkIsCommentExpression = (tokens: Token[]) => {
+  try {
+    const expectedTypes = [TokenType.Devide];
+    expectTokenType(tokens[0].type, expectedTypes);
+    expectTokenType(tokens[1].type, expectedTypes);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 const parseAnyTypeExpression = (tokens: Token[]) => {
@@ -352,7 +378,8 @@ type StatementType =
   'Expression' |
   'FunctionCompositionExpression' |
   'TernaryIf' |
-  'ObjectDefenition';
+  'ObjectDefenition' |
+  'Comment';
 
 const checkIsAssignment = (tokens: Token[]) => {
   try {
@@ -396,6 +423,13 @@ const parseStatement = (tokens: Token[]): Statement => {
     return {
       type: 'ObjectDefenition',
       value: parseObjectDefenition(tokens)
+    };
+  }
+  const isComment = checkIsCommentExpression(tokens);
+  if (isComment) {
+    return {
+      type: 'Comment',
+      value: parseComment(tokens)
     };
   }
   return {
