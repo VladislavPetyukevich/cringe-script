@@ -23,6 +23,7 @@ pair = {
     additional: 123
   }
 }
+countDown = value => otherFn(value - 1)
 `;
 
 const tokens = tokenize(programText);

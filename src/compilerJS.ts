@@ -97,7 +97,7 @@ const compileAssignment = (assignment: Assignment) => {
 
 const compileFunctionComposition = (expression: FunctionCompositionExpression) => {
   const argsView = expression.args
-    .map(arg => arg.stringView)
+    .map(arg => compileStatements(arg, ''))
     .join(')(');
   const functionNameViews = expression.functionNames.map(funName => funName.stringView);
   const views = [...functionNameViews, argsView];
@@ -169,12 +169,16 @@ const compileStatement = (statement: Statement) => {
   }
 };
 
-export const compileJS = (statements: Statement[]) => {
+const compileStatements = (statements: Statement[], endLine: string) => {
   const compiledStatements = statements.map(statement => {
-    const endLine = (statement.type === 'Comment') ? '' : ';';
-    return `${compileStatement(statement)}${endLine}`;
-  }
-  );
+    const endLn = (statement.type === 'Comment') ? '' : endLine;
+    return `${compileStatement(statement)}${endLn}`;
+  });
+  return compiledStatements;
+};
+
+export const compileJS = (statements: Statement[]) => {
+  const compiledStatements = compileStatements(statements, ';');
   return compiledStatements.join('\n');
 };
 

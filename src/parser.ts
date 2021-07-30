@@ -19,7 +19,7 @@ export interface FunctionExpression {
 
 export interface FunctionCompositionExpression {
   functionNames: Token[];
-  args: Token[];
+  args: Statement[][];
 }
 
 export interface Expression {
@@ -81,6 +81,7 @@ const parseOperators = (tokens: Token[]): Token[] => {
         TokenType.Less,
         TokenType.Equal,
         TokenType.ExclamationMark,
+        TokenType.Equal
       ]
     );
     return [tokens[1], ...parseOperators(tokens.slice(1))];
@@ -155,11 +156,20 @@ const parseFunctionComposition = (tokens: Token[]): Token[] => {
   return [tokens[0]];
 };
 
-const parseFunctionCallArgs = (tokens: Token[]): Token[] => {
+const parseFunctionCallArgs = (tokens: Token[]): Statement[][] => {
   if (tokens.length === 0) {
     return [];
   }
-  return [tokens[0], ...parseFunctionCallArgs(tokens.slice(3, tokens.length))];
+  const commaIndex = tokens.findIndex(
+    token => token.type === TokenType.Comma
+  );
+  if (commaIndex === -1) {
+    return [parse(tokens.slice(0, tokens.length - 1))];
+  }
+  return [
+    parse(tokens.slice(0, commaIndex)),
+    ...parseFunctionCallArgs(tokens.slice(commaIndex + 1, tokens.length - 1))
+  ];
 };
 
 const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositionExpression => {
