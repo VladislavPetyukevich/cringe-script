@@ -160,15 +160,13 @@ const parseFunctionCallArgs = (tokens: Token[]): Statement[][] => {
   if (tokens.length === 0) {
     return [];
   }
-  const commaIndex = tokens.findIndex(
-    token => token.type === TokenType.Comma
+  expectTokenType(tokens[0].type, [TokenType.OpenBracket]); 
+  const closeBracketIndex = tokens.findIndex(
+    token => token.type === TokenType.CloseBracket
   );
-  if (commaIndex === -1) {
-    return [parse(tokens.slice(0, tokens.length - 1))];
-  }
   return [
-    parse(tokens.slice(0, commaIndex)),
-    ...parseFunctionCallArgs(tokens.slice(commaIndex + 1, tokens.length - 1))
+    parse(tokens.slice(1, closeBracketIndex)),
+    ...parseFunctionCallArgs(tokens.slice(closeBracketIndex + 1, tokens.length))
   ];
 };
 
@@ -180,7 +178,7 @@ const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCompositio
   if (openBracketIndex === -1) {
     throw new Error('Open bracket not found');
   }
-  const args = parseFunctionCallArgs(tokens.slice(openBracketIndex + 1, tokens.length));
+  const args = parseFunctionCallArgs(tokens.slice(openBracketIndex, tokens.length));
   return {
     functionNames: functionComposition,
     args: args
