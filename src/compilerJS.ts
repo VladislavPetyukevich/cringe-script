@@ -8,7 +8,7 @@ import {
   CommentExpression,
   FunctionExpression,
   ObjectParserFields,
-} from './parser';
+} from './parser/parser';
 
 type AnyTypeExpression =
   Assignment |

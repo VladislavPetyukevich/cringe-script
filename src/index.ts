@@ -1,5 +1,5 @@
 import { tokenize } from './tokenizer';
-import { parse } from './parser';
+import { parse } from './parser/parser';
 import { compileJS } from './compilerJS';
 
 const programText = `
