@@ -21,7 +21,7 @@ export enum TokenType {
   QuestionMark,    // 19
 }
 
-const getComplexTokenType = (stringView: string) => {
+export const getComplexTokenType = (stringView: string) => {
   if (
     (stringView[0] === '\'') &&
     (stringView[stringView.length - 1] === '\'')
@@ -36,7 +36,7 @@ const getComplexTokenType = (stringView: string) => {
   }
 };
 
-const getTokenType = (stringView: string) => {
+export const getTokenType = (stringView: string) => {
   switch (stringView) {
     case '=':
       return TokenType.Equal;
@@ -82,7 +82,7 @@ export interface Token {
   stringView: string;
 }
 
-const getToken = (stringView: string) => {
+export const getToken = (stringView: string) => {
   const tokenType = getTokenType(stringView);
   return {
     type: tokenType,
@@ -95,7 +95,7 @@ interface TokenizerState {
   charsBuffer: string;
 }
 
-const removeBlankLines = (text: string) =>
+export const removeBlankLines = (text: string) =>
   text.replace(/^\s*[\r\n]/gm, '');
 
 export const tokenize = (source: string) => {
@@ -107,7 +107,7 @@ export const tokenize = (source: string) => {
   };
 
   const tokenizedState = chars.reduce(
-    (currState, currChar) => {
+    (currState, currChar, charIndex) => {
       const charTokenType = getTokenType(currChar);
       const currToken = getToken(currState.charsBuffer.trim() + currChar);
       const isStringCompleted = currToken.type === TokenType.Str;
@@ -117,9 +117,10 @@ export const tokenize = (source: string) => {
           charsBuffer: ''
         };
       }
+      const isNotLastChar = charIndex !== chars.length - 1;
       if (
-        (charTokenType === TokenType.Num) ||
-        (charTokenType === TokenType.Name) ||
+        (charTokenType === TokenType.Num && isNotLastChar) ||
+        (charTokenType === TokenType.Name && isNotLastChar) ||
         (charTokenType === TokenType.Quote && !isStringCompleted)
       ) {
         return {
@@ -129,12 +130,11 @@ export const tokenize = (source: string) => {
       }
 
       const charsBuffer = currState.charsBuffer.trim();
-      const currCharToken = getToken(currChar);
       return {
         tokens: [
           ...currState.tokens,
           ...charsBuffer ? [getToken(charsBuffer)] : [],
-          currCharToken
+          ...currChar !== ' ' ? [getToken(currChar)] : []
         ],
         charsBuffer: ''
       };
