@@ -21,58 +21,7 @@ export enum TokenType {
   QuestionMark,    // 19
 }
 
-const getTokenType = (stringView: string) => {
-  if (stringView === '=') {
-    return TokenType.Equal;
-  }
-  if (stringView === '*') {
-    return TokenType.Multiply;
-  }
-  if (stringView === '/') {
-    return TokenType.Devide;
-  }
-  if (stringView === '+') {
-    return TokenType.Plus;
-  }
-  if (stringView === '-') {
-    return TokenType.Minus;
-  }
-  if (stringView === '\'') {
-    return TokenType.Quote;
-  }
-  if (stringView === ',') {
-    return TokenType.Comma;
-  }
-  if (stringView === '{') {
-    return TokenType.OpenBrace;
-  }
-  if (stringView === '}') {
-    return TokenType.CloseBrace;
-  }
-  if (stringView === '(') {
-    return TokenType.OpenBracket;
-  }
-  if (stringView === ')') {
-    return TokenType.CloseBracket;
-  }
-  if (stringView === '>') {
-    return TokenType.Greater;
-  }
-  if (stringView === '<') {
-    return TokenType.Less;
-  }
-  if (stringView === '!') {
-    return TokenType.ExclamationMark;
-  }
-  if (stringView === ':') {
-    return TokenType.Colon;
-  }
-  if (stringView === '?') {
-    return TokenType.QuestionMark;
-  }
-  if (stringView === '\n') {
-    return TokenType.NewLine;
-  }
+const getComplexTokenType = (stringView: string) => {
   if (
     (stringView[0] === '\'') &&
     (stringView[stringView.length - 1] === '\'')
@@ -84,6 +33,47 @@ const getTokenType = (stringView: string) => {
     return TokenType.Name;
   } else {
     return TokenType.Num;
+  }
+};
+
+const getTokenType = (stringView: string) => {
+  switch (stringView) {
+    case '=':
+      return TokenType.Equal;
+    case '*':
+      return TokenType.Multiply;
+    case '/':
+      return TokenType.Devide;
+    case '+':
+      return TokenType.Plus;
+    case '-':
+      return TokenType.Minus;
+    case '\'':
+      return TokenType.Quote;
+    case ',':
+      return TokenType.Comma;
+    case '{':
+      return TokenType.OpenBrace;
+    case '}':
+      return TokenType.CloseBrace;
+    case '(':
+      return TokenType.OpenBracket;
+    case ')':
+      return TokenType.CloseBracket;
+    case '>':
+      return TokenType.Greater;
+    case '<':
+      return TokenType.Less;
+    case '!':
+      return TokenType.ExclamationMark;
+    case ':':
+      return TokenType.Colon;
+    case '?':
+      return TokenType.QuestionMark;
+    case '\n':
+      return TokenType.NewLine;
+    default:
+      return getComplexTokenType(stringView);
   }
 };
 
