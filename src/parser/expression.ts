@@ -1,7 +1,7 @@
 import { Token, TokenType } from '../tokenizer';
 import { expectTokenType, Expression } from './parser';
 
-const parseOperators = (tokens: Token[]): Token[] => {
+export const parseOperators = (tokens: Token[]): Token[] => {
   if (tokens.length === 0) {
     return [];
   }
