@@ -10,7 +10,7 @@ import {
   ObjectParserFields,
 } from './parser/parser';
 
-type AnyTypeExpression =
+export type AnyTypeExpression =
   Assignment |
   Expression |
   FunctionExpression |
@@ -19,7 +19,7 @@ type AnyTypeExpression =
   ObjectDefenitionExpression |
   CommentExpression;
 
-const compileExpression = (expression: Expression | null): string => {
+export const compileExpression = (expression: Expression | null): string => {
   if (!expression) {
     return '';
   }
@@ -34,7 +34,7 @@ const compileExpression = (expression: Expression | null): string => {
   return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)}`;
 };
 
-const compileFunctionExpression = (expression: FunctionExpression): string => {
+export const compileFunctionExpression = (expression: FunctionExpression): string => {
   const args = expression.args
     .map(arg => arg.stringView)
     .join(', ');
@@ -44,7 +44,7 @@ const compileFunctionExpression = (expression: FunctionExpression): string => {
   return `(${args}) => ${body}`;
 };
 
-const compileTernaryIfExpression = (expression: TernaryIfExpression): string => {
+export const compileTernaryIfExpression = (expression: TernaryIfExpression): string => {
   const conditionExpression = expression.condition[0].value;
   const conditionView = compileAnyTypeExpression(conditionExpression);
   const statementTrueExpression = expression.statementTrue[0].value;
@@ -54,23 +54,23 @@ const compileTernaryIfExpression = (expression: TernaryIfExpression): string => 
   return `(${conditionView}) ? ${statementTrueView} : ${statementFalseView}`;
 };
 
-const checkIsFunctionExpression = (expression: AnyTypeExpression) => {
+export const checkIsFunctionExpression = (expression: AnyTypeExpression) => {
   return 'args' in expression;
 };
 
-const checkIsFunctionCompositionExpression = (expression: AnyTypeExpression) => {
+export const checkIsFunctionCompositionExpression = (expression: AnyTypeExpression) => {
   return 'functionNames' in expression;
 };
 
-const checkIsTernaryIfExpression = (expression: AnyTypeExpression) => {
+export const checkIsTernaryIfExpression = (expression: AnyTypeExpression) => {
   return 'condition' in expression;
 };
 
-const checkIsObjectDefenitionExpression = (expression: AnyTypeExpression) => {
+export const checkIsObjectDefenitionExpression = (expression: AnyTypeExpression) => {
   return 'fields' in expression;
 };
 
-const compileAnyTypeExpression = (expression: AnyTypeExpression): string => {
+export const compileAnyTypeExpression = (expression: AnyTypeExpression): string => {
   const isFunctionExpression = checkIsFunctionExpression(expression);
   const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(expression);
   const isTernaryIfExpression = checkIsTernaryIfExpression(expression);
@@ -90,12 +90,12 @@ const compileAnyTypeExpression = (expression: AnyTypeExpression): string => {
   return compileExpression(expression as Expression);
 };
 
-const compileAssignment = (assignment: Assignment) => {
+export const compileAssignment = (assignment: Assignment) => {
   const expression = compileAnyTypeExpression(assignment.value);
   return `const ${assignment.variableName} = ${expression}`;
 };
 
-const compileFunctionComposition = (expression: FunctionCompositionExpression) => {
+export const compileFunctionComposition = (expression: FunctionCompositionExpression) => {
   const argsView = expression.args
     .map(arg => compileStatements(arg, ''))
     .join(')(');
@@ -112,7 +112,7 @@ const compileFunctionComposition = (expression: FunctionCompositionExpression) =
   return viewsReduced;
 };
 
-const compileTernaryIf = (expression: TernaryIfExpression): string => {
+export const compileTernaryIf = (expression: TernaryIfExpression): string => {
   if (expression.condition.length !== 1) {
     throw new Error('Invalid condition statements count in ternary if');
   }
@@ -125,14 +125,14 @@ const compileTernaryIf = (expression: TernaryIfExpression): string => {
   const conditionView = compileStatement(expression.condition[0]);
   const statementTrueView = compileStatement(expression.statementTrue[0]);
   const statementFalseView = compileStatement(expression.statementFalse[0]);
-  return `${conditionView} ? ${statementTrueView} : ${statementFalseView}`;
+  return `(${conditionView}) ? ${statementTrueView} : ${statementFalseView}`;
 };
 
-const getIndentView = (nestedLevel: number) => {
+export const getIndentView = (nestedLevel: number) => {
   return Array.from({ length: nestedLevel }, () => '  ').join('');
 };
 
-const compileObjectDefenition = (expression: ObjectDefenitionExpression, nestedLevel: number): string => {
+export const compileObjectDefenition = (expression: ObjectDefenitionExpression, nestedLevel: number): string => {
   const indentViewInside = getIndentView(nestedLevel);
   const objectFieldsView = expression.fields.reduce((accum: string[], field: ObjectParserFields): string[] => {
     const fieldValue = field.value;
@@ -146,11 +146,11 @@ const compileObjectDefenition = (expression: ObjectDefenitionExpression, nestedL
   return `{\n${objectFieldsView}\n${indentViewOutside}}`;
 };
 
-const compileComment = (expression: CommentExpression) => {
+export const compileComment = (expression: CommentExpression) => {
   return `// ${expression.content}`;
 };
 
-const compileStatement = (statement: Statement) => {
+export const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Assignment':
       return compileAssignment(statement.value as Assignment);
@@ -169,7 +169,7 @@ const compileStatement = (statement: Statement) => {
   }
 };
 
-const compileStatements = (statements: Statement[], endLine: string) => {
+export const compileStatements = (statements: Statement[], endLine: string) => {
   const compiledStatements = statements.map(statement => {
     const endLn = (statement.type === 'Comment') ? '' : endLine;
     return `${compileStatement(statement)}${endLn}`;
