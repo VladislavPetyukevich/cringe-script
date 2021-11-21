@@ -17,7 +17,7 @@ export const parseObjectDefenition = (tokens: Token[]): ObjectDefenitionExpressi
   };
 };
 
-const parseObjectFields = (tokens: Token[]): ObjectFieldsParserState => {
+export const parseObjectFields = (tokens: Token[]): ObjectFieldsParserState => {
   const objectFieldsParserStateInitial =
     { fields: [], bufferName: '', bufferValue: [], nestedCloseBraceIndex: 0, isParsingFieldValue: false }
   const objectFieldsParserState =
