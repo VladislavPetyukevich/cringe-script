@@ -1,7 +1,7 @@
 import { Token, TokenType } from '../tokenizer';
 import { expectTokenType, FunctionCompositionExpression, FunctionExpression, parse, Statement } from './parser';
 
-const parseArgs = (tokens: Token[]) => {
+export const parseArgs = (tokens: Token[]) => {
   try {
     expectTokenType(tokens[0].type, [TokenType.Name]);
     expectTokenType(tokens[1].type, [TokenType.Equal]);
@@ -12,7 +12,7 @@ const parseArgs = (tokens: Token[]) => {
   return [tokens[0]];
 };
 
-const parseBody = (tokens: Token[]) => {
+export const parseBody = (tokens: Token[]) => {
   const equalIndex = tokens.findIndex(
     token => token.type === TokenType.Equal
   );
@@ -36,7 +36,7 @@ export const parseFunctionExpression = (tokens: Token[]): FunctionExpression => 
   return { args, body };
 };
 
-const parseFunctionComposition = (tokens: Token[]): Token[] => {
+export const parseFunctionComposition = (tokens: Token[]): Token[] => {
   expectTokenType(
     tokens[0].type,
     [TokenType.Name]
@@ -48,7 +48,7 @@ const parseFunctionComposition = (tokens: Token[]): Token[] => {
   return [tokens[0]];
 };
 
-const parseFunctionCallArgs = (tokens: Token[]): Statement[][] => {
+export const parseFunctionCallArgs = (tokens: Token[]): Statement[][] => {
   if (tokens.length === 0) {
     return [];
   }
