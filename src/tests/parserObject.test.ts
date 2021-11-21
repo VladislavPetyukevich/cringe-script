@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TokenType } from '../tokenizer';
+import { getToken } from '../tokenizer';
 import {
   parseObjectDefenition,
   parseObjectFields,
@@ -9,41 +9,41 @@ import {
 describe('Parser object', function () {
   it('parse object defenition', function () {
     const result1 = parseObjectDefenition([
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '3' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '8' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '13' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.CloseBrace, stringView: '}' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'additional' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '123' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.CloseBrace, stringView: '}' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.CloseBrace, stringView: '}' },
+      getToken('{'),
+      getToken('\n'),
+      getToken('first'),
+      getToken(':'),
+      getToken('3'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('{'),
+      getToken('\n'),
+      getToken('first'),
+      getToken(':'),
+      getToken('5'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('{'),
+      getToken('\n'),
+      getToken('first'),
+      getToken(':'),
+      getToken('8'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('13'),
+      getToken('\n'),
+      getToken('}'),
+      getToken('\n'),
+      getToken('additional'),
+      getToken(':'),
+      getToken('123'),
+      getToken('\n'),
+      getToken('}'),
+      getToken('\n'),
+      getToken('}'),
     ]);
     const expected1 = {
       fields: [
@@ -52,7 +52,7 @@ describe('Parser object', function () {
           value: {
             type: 'Expression',
             value: {
-              leftOperand: { type: TokenType.Num, stringView: '3' },
+              leftOperand: getToken('3'),
               operator: null,
               rightOperand: null
             }
@@ -67,7 +67,7 @@ describe('Parser object', function () {
                 value: {
                   type: 'Expression',
                   value: {
-                    leftOperand: { type: TokenType.Num, stringView: '5' },
+                    leftOperand: getToken('5'),
                     operator: null,
                     rightOperand: null
                   }
@@ -82,7 +82,7 @@ describe('Parser object', function () {
                       value: {
                         type: 'Expression',
                         value: {
-                          leftOperand: { type: TokenType.Num, stringView: '8' },
+                          leftOperand: getToken('8'),
                           operator: null,
                           rightOperand: null
                         }
@@ -93,7 +93,7 @@ describe('Parser object', function () {
                       value: {
                         type: 'Expression',
                         value: {
-                          leftOperand: { type: TokenType.Num, stringView: '13' },
+                          leftOperand: getToken('13'),
                           operator: null,
                           rightOperand: null
                         }
@@ -112,7 +112,7 @@ describe('Parser object', function () {
                   type:
                     'Expression',
                   value: {
-                    leftOperand: { type: TokenType.Num, stringView: '123' },
+                    leftOperand: getToken('123'),
                     operator: null,
                     rightOperand: null
                   }
@@ -132,14 +132,14 @@ describe('Parser object', function () {
 
   it('parse object fields', function () {
     const result1 = parseObjectFields([
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '8' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '13' },
-      { type: TokenType.NewLine, stringView: '\n' },
+      getToken('first'),
+      getToken(':'),
+      getToken('8'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('13'),
+      getToken('\n'),
     ]);
     const expected1 = {
       fields: [
@@ -148,7 +148,7 @@ describe('Parser object', function () {
           value: {
             type: 'Expression',
             value: {
-              leftOperand: { type: TokenType.Num, stringView: '8' },
+              leftOperand: getToken('8'),
               operator: null,
               rightOperand: null
             }
@@ -159,7 +159,7 @@ describe('Parser object', function () {
           value: {
             type: 'Expression',
             value: {
-              leftOperand: { type: TokenType.Num, stringView: '13' },
+              leftOperand: getToken('13'),
               operator: null,
               rightOperand: null
             }
@@ -174,38 +174,38 @@ describe('Parser object', function () {
     expect(result1).deep.equal(expected1);
 
     const result2 = parseObjectFields([
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '3' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'first' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '8' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'second' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '13' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.CloseBrace, stringView: '}' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.Name, stringView: 'additional' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '123' },
-      { type: TokenType.NewLine, stringView: '\n' },
-      { type: TokenType.CloseBrace, stringView: '}' },
-      { type: TokenType.NewLine, stringView: '\n' },
+      getToken('first'),
+      getToken(':'),
+      getToken('3'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('{'),
+      getToken('\n'),
+      getToken('first'),
+      getToken(':'),
+      getToken('5'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('{'),
+      getToken('\n'),
+      getToken('first'),
+      getToken(':'),
+      getToken('8'),
+      getToken('\n'),
+      getToken('second'),
+      getToken(':'),
+      getToken('13'),
+      getToken('\n'),
+      getToken('}'),
+      getToken('\n'),
+      getToken('additional'),
+      getToken(':'),
+      getToken('123'),
+      getToken('\n'),
+      getToken('}'),
+      getToken('\n'),
     ]);
     const expected2 = {
       fields: [
@@ -214,7 +214,7 @@ describe('Parser object', function () {
           value: {
             type: 'Expression',
             value: {
-              leftOperand: { type: TokenType.Num, stringView: '3' },
+              leftOperand: getToken('3'),
               operator: null,
               rightOperand: null
             }
@@ -229,7 +229,7 @@ describe('Parser object', function () {
                 value: {
                   type: 'Expression',
                   value: {
-                    leftOperand: { type: TokenType.Num, stringView: '5' },
+                    leftOperand: getToken('5'),
                     operator: null,
                     rightOperand: null
                   }
@@ -244,7 +244,7 @@ describe('Parser object', function () {
                       value: {
                         type: 'Expression',
                         value: {
-                          leftOperand: { type: TokenType.Num, stringView: '8' },
+                          leftOperand: getToken('8'),
                           operator: null,
                           rightOperand: null
                         }
@@ -255,7 +255,7 @@ describe('Parser object', function () {
                       value: {
                         type: 'Expression',
                         value: {
-                          leftOperand: { type: TokenType.Num, stringView: '13' },
+                          leftOperand: getToken('13'),
                           operator: null,
                           rightOperand: null
                         }
@@ -273,7 +273,7 @@ describe('Parser object', function () {
                 value: {
                   type: 'Expression',
                   value: {
-                    leftOperand: { type: TokenType.Num, stringView: '123' },
+                    leftOperand: getToken('123'),
                     operator: null,
                     rightOperand: null
                   }
@@ -297,36 +297,36 @@ describe('Parser object', function () {
     const result3 = parseObjectFields.bind(
       undefined,
       [
-        { type: TokenType.Name, stringView: 'first' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '3' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'second' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.OpenBrace, stringView: '{' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'first' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '5' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'second' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.OpenBrace, stringView: '{' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'first' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '8' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'second' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '13' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'additional' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '123' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.CloseBrace, stringView: '}' },
-        { type: TokenType.NewLine, stringView: '\n' },
+        getToken('first'),
+        getToken(':'),
+        getToken('3'),
+        getToken('\n'),
+        getToken('second'),
+        getToken(':'),
+        getToken('{'),
+        getToken('\n'),
+        getToken('first'),
+        getToken(':'),
+        getToken('5'),
+        getToken('\n'),
+        getToken('second'),
+        getToken(':'),
+        getToken('{'),
+        getToken('\n'),
+        getToken('first'),
+        getToken(':'),
+        getToken('8'),
+        getToken('\n'),
+        getToken('second'),
+        getToken(':'),
+        getToken('13'),
+        getToken('\n'),
+        getToken('additional'),
+        getToken(':'),
+        getToken('123'),
+        getToken('\n'),
+        getToken('}'),
+        getToken('\n'),
       ]
     );
     expect(result3).throw('Close Brace not found in nested object');
@@ -334,28 +334,28 @@ describe('Parser object', function () {
     const result4 = parseObjectFields.bind(
       undefined,
       [
-        { type: TokenType.Name, stringView: 'first' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '3' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'second' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.OpenBrace, stringView: '{' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'first' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '5' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'first' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '8' },
-        { type: TokenType.NewLine, stringView: '\n' },
-        { type: TokenType.Name, stringView: 'second' },
-        { type: TokenType.Name, stringView: 'additional' },
-        { type: TokenType.Colon, stringView: ':' },
-        { type: TokenType.Num, stringView: '123' },
-        { type: TokenType.CloseBrace, stringView: '}' },
+        getToken('first'),
+        getToken(':'),
+        getToken('3'),
+        getToken('\n'),
+        getToken('second'),
+        getToken(':'),
+        getToken('{'),
+        getToken('\n'),
+        getToken('first'),
+        getToken(':'),
+        getToken('5'),
+        getToken('\n'),
+        getToken('\n'),
+        getToken('first'),
+        getToken(':'),
+        getToken('8'),
+        getToken('\n'),
+        getToken('second'),
+        getToken('additional'),
+        getToken(':'),
+        getToken('123'),
+        getToken('}'),
       ]
     );
     expect(result4).throw('Error while parsing object');
@@ -363,34 +363,34 @@ describe('Parser object', function () {
 
   it('check is object expression', function () {
     const result1 = checkIsObjectExpression([
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.Name, stringView: 'val' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '69' },
-      { type: TokenType.CloseBrace, stringView: '}' },
+      getToken('{'),
+      getToken('val'),
+      getToken(':'),
+      getToken('69'),
+      getToken('}'),
     ]);
     expect(result1).equal(true);
 
     const result2 = checkIsObjectExpression([
-      { type: TokenType.Name, stringView: 'val' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '69' },
-      { type: TokenType.CloseBrace, stringView: '}' },
+      getToken('val'),
+      getToken(':'),
+      getToken('69'),
+      getToken('}'),
     ]);
     expect(result2).equal(false);
 
     const result3 = checkIsObjectExpression([
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.Name, stringView: 'val' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '69' },
+      getToken('{'),
+      getToken('val'),
+      getToken(':'),
+      getToken('69'),
     ]);
     expect(result3).equal(false);
 
     const result4 = checkIsObjectExpression([
-      { type: TokenType.OpenBrace, stringView: '{' },
-      { type: TokenType.Name, stringView: 'val' },
-      { type: TokenType.CloseBrace, stringView: '}' },
+      getToken('{'),
+      getToken('val'),
+      getToken('}'),
     ]);
     expect(result4).equal(false);
   });

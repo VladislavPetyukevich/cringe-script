@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TokenType } from '../tokenizer';
+import { getToken } from '../tokenizer';
 import {
   parseAssignment,
   checkIsAssignment,
@@ -7,32 +7,21 @@ import {
 
 describe('Parser assignment', function() {
   it('parse assignment', function() {
-    const result = parseAssignment([{
-      type: TokenType.Name,
-      stringView: 'count'
-    }, {
-      type: TokenType.Equal,
-      stringView: '='
-    }, {
-      type: TokenType.Num,
-      stringView: '2'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '5'
-    }]);
+    const result = parseAssignment([
+      getToken('count'),
+      getToken('='),
+      getToken('2'),
+      getToken('+'),
+      getToken('5')
+    ]);
 
     const expected = {
       variableName: 'count',
       value: {
-        leftOperand: { type: TokenType.Num, stringView: '2' },
-        operator: [
-          { type: TokenType.Plus, stringView: '+' }
-        ],
+        leftOperand: getToken('2'),
+        operator: [getToken('+')],
         rightOperand: {
-          leftOperand: { type: TokenType.Num, stringView: '5' },
+          leftOperand: getToken('5'),
           operator: null,
           rightOperand: null
         }
@@ -43,53 +32,28 @@ describe('Parser assignment', function() {
   });
 
   it('check is assignment', function() {
-    expect(checkIsAssignment([{
-      type: TokenType.Name,
-      stringView: 'count'
-    }, {
-      type: TokenType.Equal,
-      stringView: '='
-    }, {
-      type: TokenType.Num,
-      stringView: '2'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '5'
-    }])).equal(true);
+    expect(checkIsAssignment([
+      getToken('count'),
+      getToken('='),
+      getToken('2'),
+      getToken('+'),
+      getToken('5')
+    ])).equal(true);
 
-    expect(checkIsAssignment([{
-      type: TokenType.Num,
-      stringView: '2'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '5'
-    }])).equal(false);
+    expect(checkIsAssignment([
+      getToken('2'),
+      getToken('+'),
+      getToken('5')
+    ])).equal(false);
 
-    expect(checkIsAssignment([{
-      type: TokenType.Name,
-      stringView: 'a'
-    }, {
-      type: TokenType.Equal,
-      stringView: '='
-    }, {
-      type: TokenType.Greater,
-      stringView: '>'
-    }, {
-      type: TokenType.Name,
-      stringView: 'a'
-    }, {
-      type: TokenType.Multiply,
-      stringView: '*'
-    }, {
-      type: TokenType.Name,
-      stringView: 'a'
-    }])).equal(false);
+    expect(checkIsAssignment([
+      getToken('a'),
+      getToken('='),
+      getToken('>'),
+      getToken('a'),
+      getToken('*'),
+      getToken('a')
+    ])).equal(false);
   });
 });
 

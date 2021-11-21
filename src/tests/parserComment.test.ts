@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TokenType } from '../tokenizer';
+import { getToken } from '../tokenizer';
 import {
   parseComment,
   checkIsCommentExpression
@@ -11,22 +11,13 @@ describe('Parser comment', function() {
       content: '5+69'
     };
 
-    const result = parseComment([{
-      type: TokenType.Devide,
-      stringView: '/'
-    }, {
-      type: TokenType.Devide,
-      stringView: '/'
-    }, {
-      type: TokenType.Num,
-      stringView: '5'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '69'
-    }]);
+    const result = parseComment([
+      getToken('/'),
+      getToken('/'),
+      getToken('5'),
+      getToken('+'),
+      getToken('69')
+    ]);
 
     expect(result).deep.equal(expected);
   });
@@ -35,36 +26,20 @@ describe('Parser comment', function() {
     expect(checkIsCommentExpression([
     ])).equal(false);
 
-    expect(checkIsCommentExpression([{
-      type: TokenType.Devide,
-      stringView: '/'
-    }, {
-      type: TokenType.Devide,
-      stringView: '/'
-    }, {
-      type: TokenType.Num,
-      stringView: '5'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '69'
-    }])).equal(true);
+    expect(checkIsCommentExpression([
+      getToken('/'),
+      getToken('/'),
+      getToken('5'),
+      getToken('+'),
+      getToken('69'),
+    ])).equal(true);
 
-    expect(checkIsCommentExpression([{
-      type: TokenType.Devide,
-      stringView: '/'
-    }, {
-      type: TokenType.Num,
-      stringView: '5'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '69'
-    }])).equal(false);
+    expect(checkIsCommentExpression([
+      getToken('/'),
+      getToken('5'),
+      getToken('+'),
+      getToken('69'),
+    ])).equal(false);
   });
 });
 

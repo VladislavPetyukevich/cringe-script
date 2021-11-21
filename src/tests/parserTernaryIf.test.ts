@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TokenType } from '../tokenizer';
+import { getToken } from '../tokenizer';
 import {
   parseTernaryIf,
   checkIsTernaryIfExpression,
@@ -8,23 +8,23 @@ import {
 describe('Parser ternary if', function () {
   it('parse ternary if', function () {
     const result1 = parseTernaryIf([
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '3' },
-      { type: TokenType.QuestionMark, stringView: '?' },
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '3' },
+      getToken('5'),
+      getToken('>'),
+      getToken('3'),
+      getToken('?'),
+      getToken('5'),
+      getToken(':'),
+      getToken('3'),
     ]);
     const expected1 = {
       condition: [
         {
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Num, stringView: '5' },
-            operator: [{ type: TokenType.Greater, stringView: '>' }],
+            leftOperand: getToken('5'),
+            operator: [getToken('>')],
             rightOperand: {
-              leftOperand: { type: TokenType.Num, stringView: '3' },
+              leftOperand: getToken('3'),
               operator: null,
               rightOperand: null
             }
@@ -35,7 +35,7 @@ describe('Parser ternary if', function () {
         {
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Num, stringView: '5' },
+            leftOperand: getToken('5'),
             operator: null,
             rightOperand: null
           }
@@ -45,7 +45,7 @@ describe('Parser ternary if', function () {
         {
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Num, stringView: '3' },
+            leftOperand: getToken('3'),
             operator: null,
             rightOperand: null
           }
@@ -57,9 +57,9 @@ describe('Parser ternary if', function () {
     const result2 = parseTernaryIf.bind(
       undefined,
       [
-        { type: TokenType.Num, stringView: '5' },
-        { type: TokenType.Greater, stringView: '>' },
-        { type: TokenType.Num, stringView: '3' },
+        getToken('5'),
+        getToken('>'),
+        getToken('3'),
       ]
     );
     expect(result2).throw('Question mark not found');
@@ -67,11 +67,11 @@ describe('Parser ternary if', function () {
     const result3 = parseTernaryIf.bind(
       undefined,
       [
-        { type: TokenType.Num, stringView: '5' },
-        { type: TokenType.Greater, stringView: '>' },
-        { type: TokenType.Num, stringView: '3' },
-        { type: TokenType.QuestionMark, stringView: '?' },
-        { type: TokenType.Num, stringView: '5' },
+        getToken('5'),
+        getToken('>'),
+        getToken('3'),
+        getToken('?'),
+        getToken('5'),
       ]
     );
     expect(result3).throw('Colon not found');
@@ -79,27 +79,27 @@ describe('Parser ternary if', function () {
 
   it('check is ternary if expression', function () {
     expect(checkIsTernaryIfExpression([
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '3' },
-      { type: TokenType.QuestionMark, stringView: '?' },
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.Colon, stringView: ':' },
-      { type: TokenType.Num, stringView: '3' },
+      getToken('5'),
+      getToken('>'),
+      getToken('3'),
+      getToken('?'),
+      getToken('5'),
+      getToken(':'),
+      getToken('3'),
     ])).equal(true);
 
     expect(checkIsTernaryIfExpression([
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '3' },
+      getToken('5'),
+      getToken('>'),
+      getToken('3'),
     ])).equal(false);
 
     expect(checkIsTernaryIfExpression([
-      { type: TokenType.Num, stringView: '5' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '3' },
-      { type: TokenType.QuestionMark, stringView: '?' },
-      { type: TokenType.Num, stringView: '5' },
+      getToken('5'),
+      getToken('>'),
+      getToken('3'),
+      getToken('?'),
+      getToken('5'),
     ])).equal(false);
   });
 });

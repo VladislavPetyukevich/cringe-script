@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TokenType } from '../tokenizer';
+import { getToken } from '../tokenizer';
 import {
   parseOperators,
   parseExpression
@@ -9,107 +9,71 @@ describe('Parser expression', function() {
   it('parse operators', function() {
     expect(parseOperators([])).deep.equal([]);
 
-    const result1 = parseOperators([{
-      type: TokenType.Name,
-      stringView: 'n'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Equal,
-      stringView: '='
-    }, {
-      type: TokenType.Num,
-      stringView: '6'
-    }]);
-    const expected1 = [{
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Equal,
-      stringView: '='
-    }];
+    const result1 = parseOperators([
+      getToken('n'),
+      getToken('+'),
+      getToken('='),
+      getToken('6')
+    ]);
+    const expected1 = [
+      getToken('+'),
+      getToken('=')
+  ];
     expect(result1).deep.equal(expected1);
 
-    const result2 = parseOperators([{
-      type: TokenType.Name,
-      stringView: 'aa'
-    }, {
-      type: TokenType.Name,
-      stringView: 'aa'
-    }, {
-      type: TokenType.Name,
-      stringView: 'aa'
-    }]);
+    const result2 = parseOperators([
+      getToken('aa'),
+      getToken('aa'),
+      getToken('aa')
+  ]);
     expect(result2).deep.equal([]);
   });
 
   it('parse expression', function() {
-    const result1 = parseExpression([{
-      type: TokenType.Num,
-      stringView: '6'
-    }]);
+    const result1 = parseExpression([getToken('6')]);
     const expected1 = {
-      leftOperand: { type: TokenType.Num, stringView: '6' },
+      leftOperand: getToken('6'),
       operator: null,
       rightOperand: null
     };
     expect(result1).deep.equal(expected1);
 
-    const result2 = parseExpression([{
-      type: TokenType.Num,
-      stringView: '6'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '9'
-    }]);
+    const result2 = parseExpression([
+      getToken('6'),
+      getToken('+'),
+      getToken('9')
+  ]);
     const expected2 = {
-      leftOperand: { type: TokenType.Num, stringView: '6' },
-      operator: [{ type: TokenType.Plus, stringView: '+' }],
+      leftOperand: getToken('6'),
+      operator: [getToken('+')],
       rightOperand: {
-        leftOperand: { type: TokenType.Num, stringView: '9' },
+        leftOperand: getToken('9'),
         operator: null,
         rightOperand: null
       }
     };
     expect(result2).deep.equal(expected2);
 
-    const result3 = parseExpression([{
-      type: TokenType.Num,
-      stringView: '6'
-    }, {
-      type: TokenType.Plus,
-      stringView: '+'
-    }, {
-      type: TokenType.Num,
-      stringView: '9'
-    }, {
-      type: TokenType.Minus,
-      stringView: '-'
-    }, {
-      type: TokenType.Num,
-      stringView: '69'
-    }, {
-      type: TokenType.Devide,
-      stringView: '/'
-    }, {
-      type: TokenType.Num,
-      stringView: '2'
-    }]);
+    const result3 = parseExpression([
+      getToken('6'),
+      getToken('+'),
+      getToken('9'),
+      getToken('-'),
+      getToken('69'),
+      getToken('/'),
+      getToken('2')
+  ]);
     const expected3 = {
-      leftOperand: { type: TokenType.Num, stringView: '6' },
-      operator: [{ type: TokenType.Plus, stringView: '+' }],
+      leftOperand: getToken('6'),
+      operator: [getToken('+')],
       rightOperand: {
-        leftOperand: { type: TokenType.Num, stringView: '9' },
-        operator: [{ type: TokenType.Minus, stringView: '-' }],
+        leftOperand: getToken('9'),
+        operator: [getToken('-')],
         rightOperand: {
-          leftOperand: { type: TokenType.Num, stringView: '69' },
-          operator: [{ type: TokenType.Devide, stringView: '/' }],
+          leftOperand: getToken('69'),
+          operator: [getToken('/')],
           rightOperand: {
-            leftOperand: { type: TokenType.Num, stringView: '2' },
+            leftOperand: getToken('2'),
             operator: null,
             rightOperand: null
           }

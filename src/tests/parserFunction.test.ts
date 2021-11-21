@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TokenType } from '../tokenizer';
+import { getToken } from '../tokenizer';
 import {
   parseArgs,
   parseBody,
@@ -14,19 +14,19 @@ import {
 describe('Parser function', function () {
   it('parse args', function () {
     const result1 = parseArgs([
-      { type: TokenType.Name, stringView: 'name' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
+      getToken('name'),
+      getToken('='),
+      getToken('>'),
     ]);
-    const expected1 = [{ type: TokenType.Name, stringView: 'name' }];
+    const expected1 = [getToken('name')];
     expect(result1).deep.equal(expected1);
 
     const result2 = parseArgs.bind(
       undefined,
       [
-        { type: TokenType.Name, stringView: 'name' },
-        { type: TokenType.Multiply, stringView: '*' },
-        { type: TokenType.Num, stringView: '69' },
+        getToken('name'),
+        getToken('*'),
+        getToken('69'),
       ]
     );
     expect(result2).throw('Invalid arguments in function defenition');
@@ -34,20 +34,20 @@ describe('Parser function', function () {
 
   it('parse body', function () {
     const result1 = parseBody([
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.Multiply, stringView: '*' },
-      { type: TokenType.Num, stringView: '9' },
+      getToken('='),
+      getToken('>'),
+      getToken('6'),
+      getToken('*'),
+      getToken('9'),
     ]);
     const expected1 = [
       {
         type: 'Expression',
         value: {
-          leftOperand: { type: TokenType.Num, stringView: '6' },
-          operator: [{ type: TokenType.Multiply, stringView: '*' }],
+          leftOperand: getToken('6'),
+          operator: [getToken('*')],
           rightOperand: {
-            leftOperand: { type: TokenType.Num, stringView: '9' },
+            leftOperand: getToken('9'),
             operator: null,
             rightOperand: null
           }
@@ -57,26 +57,26 @@ describe('Parser function', function () {
     expect(result1).deep.equal(expected1);
 
     const result2 = parseBody([
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Name, stringView: 'num' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Name, stringView: 'num' },
-      { type: TokenType.Multiply, stringView: '*' },
-      { type: TokenType.Num, stringView: '9' },
+      getToken('='),
+      getToken('>'),
+      getToken('num'),
+      getToken('='),
+      getToken('>'),
+      getToken('num'),
+      getToken('*'),
+      getToken('9'),
     ]);
     const expected2 = [{
       type: 'Expression',
       value: {
-        args: [{ type: TokenType.Name, stringView: 'num' }],
+        args: [getToken('num')],
         body: [{
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Name, stringView: 'num' },
-            operator: [{ type: TokenType.Multiply, stringView: '*' }],
+            leftOperand: getToken('num'),
+            operator: [getToken('*')],
             rightOperand: {
-              leftOperand: { type: TokenType.Num, stringView: '9' },
+              leftOperand: getToken('9'),
               operator: null,
               rightOperand: null
             }
@@ -89,9 +89,9 @@ describe('Parser function', function () {
     const result3 = parseBody.bind(
       undefined,
       [
-        { type: TokenType.Name, stringView: 'num' },
-        { type: TokenType.Multiply, stringView: '*' },
-        { type: TokenType.Num, stringView: '9' },
+        getToken('num'),
+        getToken('*'),
+        getToken('9'),
       ]
     );
     expect(result3).throw('=> symbol not found');
@@ -99,22 +99,22 @@ describe('Parser function', function () {
 
   it('parse function expression', function () {
     const result1 = parseFunctionExpression([
-      { type: TokenType.Name, stringView: 'fn' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.Multiply, stringView: '*' },
-      { type: TokenType.Num, stringView: '9' },
+      getToken('fn'),
+      getToken('='),
+      getToken('>'),
+      getToken('6'),
+      getToken('*'),
+      getToken('9'),
     ]);
     const expected1 = {
-      args: [{ type: TokenType.Name, stringView: 'fn' }],
+      args: [getToken('fn')],
       body: [{
         type: 'Expression',
         value: {
-          leftOperand: { type: TokenType.Num, stringView: '6' },
-          operator: [{ type: TokenType.Multiply, stringView: '*' }],
+          leftOperand: getToken('6'),
+          operator: [getToken('*')],
           rightOperand: {
-            leftOperand: { type: TokenType.Num, stringView: '9' },
+            leftOperand: getToken('9'),
             operator: null,
             rightOperand: null
           }
@@ -124,29 +124,29 @@ describe('Parser function', function () {
     expect(result1).deep.equal(expected1);
 
     const result2 = parseFunctionExpression([
-      { type: TokenType.Name, stringView: 'fn' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Name, stringView: 'num' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Name, stringView: 'num' },
-      { type: TokenType.Multiply, stringView: '*' },
-      { type: TokenType.Num, stringView: '9' },
+      getToken('fn'),
+      getToken('='),
+      getToken('>'),
+      getToken('num'),
+      getToken('='),
+      getToken('>'),
+      getToken('num'),
+      getToken('*'),
+      getToken('9'),
     ]);
     const expected2 = {
-      args: [{ type: TokenType.Name, stringView: 'fn' }],
+      args: [getToken('fn')],
       body: [{
         type: 'Expression',
         value: {
-          args: [{ type: TokenType.Name, stringView: 'num' }],
+          args: [getToken('num')],
           body: [{
             type: 'Expression',
             value: {
-              leftOperand: { type: TokenType.Name, stringView: 'num' },
-              operator: [{ type: TokenType.Multiply, stringView: '*' }],
+              leftOperand: getToken('num'),
+              operator: [getToken('*')],
               rightOperand: {
-                leftOperand: { type: TokenType.Num, stringView: '9' },
+                leftOperand: getToken('9'),
                 operator: null,
                 rightOperand: null
               }
@@ -160,11 +160,11 @@ describe('Parser function', function () {
     const result3 = parseFunctionExpression.bind(
       undefined,
       [
-        { type: TokenType.Equal, stringView: '=' },
-        { type: TokenType.Greater, stringView: '>' },
-        { type: TokenType.Num, stringView: '6' },
-        { type: TokenType.Multiply, stringView: '*' },
-        { type: TokenType.Num, stringView: '9' },
+        getToken('='),
+        getToken('>'),
+        getToken('6'),
+        getToken('*'),
+        getToken('9'),
       ]
     );
     expect(result3).throw('Invalid arguments in function defenition');
@@ -172,63 +172,63 @@ describe('Parser function', function () {
 
   it('parse function composition', function () {
     const result1 = parseFunctionComposition([
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.CloseBracket, stringView: ')' },
+      getToken('pow2'),
+      getToken(','),
+      getToken('sum'),
+      getToken('('),
+      getToken('6'),
+      getToken(')'),
     ]);
     const expected1 = [
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Name, stringView: 'sum' }
+      getToken('pow2'),
+      getToken('sum')
     ];
     expect(result1).deep.equal(expected1);
 
     const result2 = parseFunctionComposition([
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.CloseBracket, stringView: ')' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '9' },
-      { type: TokenType.CloseBracket, stringView: ')' },
+      getToken('pow2'),
+      getToken(','),
+      getToken('sum'),
+      getToken('('),
+      getToken('6'),
+      getToken(')'),
+      getToken('('),
+      getToken('9'),
+      getToken(')'),
     ]);
     const expected2 = [
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Name, stringView: 'sum' }
+      getToken('pow2'),
+      getToken('sum')
     ];
     expect(result2).deep.equal(expected2);
 
     const result3 = parseFunctionComposition([
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum2' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.CloseBracket, stringView: ')' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '9' },
-      { type: TokenType.CloseBracket, stringView: ')' },
+      getToken('pow2'),
+      getToken(','),
+      getToken('sum'),
+      getToken(','),
+      getToken('sum2'),
+      getToken('('),
+      getToken('6'),
+      getToken(')'),
+      getToken('('),
+      getToken('9'),
+      getToken(')'),
     ]);
     const expected3 = [
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Name, stringView: 'sum' },
-      { type: TokenType.Name, stringView: 'sum2' },
+      getToken('pow2'),
+      getToken('sum'),
+      getToken('sum2'),
     ];
     expect(result3).deep.equal(expected3);
 
     const result4 = parseFunctionComposition.bind(
       undefined,
       [
-        { type: TokenType.Comma, stringView: ',' },
-        { type: TokenType.Name, stringView: 'sum' },
-        { type: TokenType.Comma, stringView: ',' },
-        { type: TokenType.Name, stringView: 'sum2' },
+        getToken(','),
+        getToken('sum'),
+        getToken(','),
+        getToken('sum2'),
       ]
     );
     expect(result4).throw('Unxpected token type');
@@ -239,9 +239,9 @@ describe('Parser function', function () {
     expect(result1).deep.equal([]);
 
     const result2 = parseFunctionCallArgs([
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.CloseBracket, stringView: ')' },
+      getToken('('),
+      getToken('6'),
+      getToken(')'),
     ]);
     const expected2 = [[{
       type: 'Expression',
@@ -264,15 +264,15 @@ describe('Parser function', function () {
       { type: 14, stringView: ')' }
     ]);
     const expected1 = {
-      functionNames: [{ type: TokenType.Name, stringView: 'otherFn' }],
+      functionNames: [getToken('otherFn')],
       args: [
         [{
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Name, stringView: 'value' },
-            operator: [{ type: TokenType.Minus, stringView: '-' }],
+            leftOperand: getToken('value'),
+            operator: [getToken('-')],
             rightOperand: {
-              leftOperand: { type: TokenType.Num, stringView: '1' },
+              leftOperand: getToken('1'),
               operator: null,
               rightOperand: null
             }
@@ -283,26 +283,26 @@ describe('Parser function', function () {
     expect(result1).deep.equal(expected1);
 
     const result2 = parseFunctionCompositionExpression([
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Name, stringView: 'count' },
-      { type: TokenType.CloseBracket, stringView: ')' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Name, stringView: 'countX2' },
-      { type: TokenType.CloseBracket, stringView: ')' }
+      getToken('pow2'),
+      getToken(','),
+      getToken('sum'),
+      getToken('('),
+      getToken('count'),
+      getToken(')'),
+      getToken('('),
+      getToken('countX2'),
+      getToken(')')
     ]);
     const expected2 = {
       functionNames: [
-        { type: TokenType.Name, stringView: 'pow2' },
-        { type: TokenType.Name, stringView: 'sum' }
+        getToken('pow2'),
+        getToken('sum')
       ],
       args: [
         [{
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Name, stringView: 'count' },
+            leftOperand: getToken('count'),
             operator: null,
             rightOperand: null
           }
@@ -310,7 +310,7 @@ describe('Parser function', function () {
         [{
           type: 'Expression',
           value: {
-            leftOperand: { type: TokenType.Name, stringView: 'countX2' },
+            leftOperand: getToken('countX2'),
             operator: null,
             rightOperand: null
           }
@@ -322,40 +322,40 @@ describe('Parser function', function () {
 
   it('check is function expression', function () {
     const result1 = checkIsFunctionExpression([
-      { type: TokenType.Name, stringView: 'fn' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Greater, stringView: '>' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.Multiply, stringView: '*' },
-      { type: TokenType.Num, stringView: '9' },
+      getToken('fn'),
+      getToken('='),
+      getToken('>'),
+      getToken('6'),
+      getToken('*'),
+      getToken('9'),
     ]);
     expect(result1).equal(true);
 
     const result2 = checkIsFunctionExpression([
-      { type: TokenType.Name, stringView: 'fn' },
-      { type: TokenType.Equal, stringView: '=' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.Multiply, stringView: '*' },
-      { type: TokenType.Num, stringView: '9' },
+      getToken('fn'),
+      getToken('='),
+      getToken('6'),
+      getToken('*'),
+      getToken('9'),
     ]);
     expect(result2).equal(false);
   });
 
   it('check is function composition expression', function () {
     const result1 = checkIsFunctionCompositionExpression([
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum' },
-      { type: TokenType.OpenBracket, stringView: '(' },
-      { type: TokenType.Num, stringView: '6' },
-      { type: TokenType.CloseBracket, stringView: ')' },
+      getToken('pow2'),
+      getToken(','),
+      getToken('sum'),
+      getToken('('),
+      getToken('6'),
+      getToken(')'),
     ]);
     expect(result1).equal(true);
 
     const result2 = checkIsFunctionCompositionExpression([
-      { type: TokenType.Name, stringView: 'pow2' },
-      { type: TokenType.Comma, stringView: ',' },
-      { type: TokenType.Name, stringView: 'sum' },
+      getToken('pow2'),
+      getToken(','),
+      getToken('sum'),
     ]);
     expect(result2).equal(false);
   });
