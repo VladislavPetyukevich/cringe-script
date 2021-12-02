@@ -14,6 +14,10 @@ import {
   parseObjectDefenition
 } from './object';
 import { checkIsTernaryIfExpression, parseTernaryIf } from './ternaryIf';
+import {
+  checkIsCringe,
+  parseCringe
+} from './cringe';
 
 export interface Statement {
   type: StatementType;
@@ -24,7 +28,8 @@ export interface Statement {
     FunctionCompositionExpression |
     TernaryIfExpression |
     ObjectDefenitionExpression |
-    CommentExpression;
+    CommentExpression |
+    Cringe;
 }
 
 export interface FunctionExpression {
@@ -59,6 +64,10 @@ export interface ObjectDefenitionExpression {
 }
 
 export interface CommentExpression {
+  content: string;
+}
+
+export interface Cringe {
   content: string;
 }
 
@@ -148,9 +157,24 @@ type StatementType =
   'FunctionCompositionExpression' |
   'TernaryIf' |
   'ObjectDefenition' |
-  'Comment';
+  'Comment' |
+  'Cringe';
 
 const parseStatement = (tokens: Token[]): Statement => {
+  const isCringe = checkIsCringe(tokens);
+  if (isCringe) {
+    return {
+      type: 'Cringe',
+      value: parseCringe(tokens)
+    };
+  }
+  const isComment = checkIsCommentExpression(tokens);
+  if (isComment) {
+    return {
+      type: 'Comment',
+      value: parseComment(tokens)
+    };
+  }
   const isAssignment = checkIsAssignment(tokens);
   if (isAssignment) {
     return {
@@ -177,13 +201,6 @@ const parseStatement = (tokens: Token[]): Statement => {
     return {
       type: 'ObjectDefenition',
       value: parseObjectDefenition(tokens)
-    };
-  }
-  const isComment = checkIsCommentExpression(tokens);
-  if (isComment) {
-    return {
-      type: 'Comment',
-      value: parseComment(tokens)
     };
   }
   return {

@@ -19,6 +19,7 @@ import {
   compileTernaryIf,
   compileTernaryIfExpression,
   getIndentView,
+  compileCringe,
 } from '../compilerJS';
 
 // Bloody hell
@@ -800,14 +801,14 @@ describe('Compiler JS', function () {
 
     expect(compileStatement(
       {
-        type: "Comment", value: { "content": "some program comment" }
+        type: "Comment", value: { content: "some program comment" }
       }
     )).equal('// some program comment');
 
     expect(compileStatement.bind(
       undefined,
       {
-        type: "FAKE STATEMENT", value: { "content": "some program comment" }
+        type: "FAKE STATEMENT", value: { content: "some program comment" }
       } as any
     )).throw('Unknown statement: FAKE STATEMENT');
   });
@@ -815,7 +816,7 @@ describe('Compiler JS', function () {
   it('compile statements', function () {
     expect(compileStatements(
       [{
-        type: "Comment", value: { "content": "some program comment" }
+        type: "Comment", value: { content: "some program comment" }
       }, {
         type: "Assignment", value: {
           variableName: "count", value: {
@@ -864,12 +865,31 @@ describe('Compiler JS', function () {
       'const countX2 = 5 * 2;',
       'const sum = (a) => (b) => a + b;',
     ]);
+
+    expect(compileStatements(
+      [
+        { type: "Cringe", value: { content: "console.log('res:',res);" } },
+        { type: "Cringe", value: { content: "console.log('hi,mynameis🤣');\nconsole.log('pair:',pair);" } }
+      ],
+      ';'
+    )).deep.equal([
+      '// \\/ 🤣 CRINGE 🤣 INJECTION BEGIN \\/\nconsole.log(\'res:\',res);\n// /\\ 🤣 CRINGE 🤣 INJECTION END /\\',
+      '// \\/ 🤣 CRINGE 🤣 INJECTION BEGIN \\/\nconsole.log(\'hi,mynameis🤣\');\nconsole.log(\'pair:\',pair);\n// /\\ 🤣 CRINGE 🤣 INJECTION END /\\'
+    ]);
+  });
+
+  it('compile cringe', function () {
+    const injectionBegin = '// \\/ 🤣 CRINGE 🤣 INJECTION BEGIN \\/';
+    const injectionEnd = '// /\\ 🤣 CRINGE 🤣 INJECTION END /\\';
+    expect(compileCringe(
+      { content: 'console.log(\'cringe\');' }
+    )).equal(`${injectionBegin}\nconsole.log(\'cringe\');\n${injectionEnd}`);
   });
 
   it('compile JS', function () {
     expect(compileJS(
       [{
-        type: "Comment", value: { "content": "some program comment" }
+        type: "Comment", value: { content: "some program comment" }
       }, {
         type: "Assignment", value: {
           variableName: "count", value: {
@@ -915,9 +935,24 @@ describe('Compiler JS', function () {
 
     expect(compileJS(
       [{
-        type: "Comment", value: { "content": "some program comment" }
+        type: "Comment", value: { content: "some program comment" }
       }]
     )).equal('// some program comment');
+
+    expect(compileJS(
+      [
+        { type: "Cringe", value: { content: "console.log('res:',res);" } },
+        { type: "Cringe", value: { content: "console.log('hi,mynameis🤣');\nconsole.log('pair:',pair);" } }
+      ]
+    )).equal([
+      '// \\/ 🤣 CRINGE 🤣 INJECTION BEGIN \\/',
+      'console.log(\'res:\',res);',
+      '// /\\ 🤣 CRINGE 🤣 INJECTION END /\\',
+      '// \\/ 🤣 CRINGE 🤣 INJECTION BEGIN \\/',
+      'console.log(\'hi,mynameis🤣\');',
+      'console.log(\'pair:\',pair);',
+      '// /\\ 🤣 CRINGE 🤣 INJECTION END /\\',
+    ].join('\n'));
 
     expect(compileJS(
       []

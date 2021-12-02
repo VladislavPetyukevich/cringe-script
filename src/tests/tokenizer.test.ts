@@ -132,6 +132,26 @@ describe('tokenizer', function() {
       { type: TokenType.NewLine, stringView: '\n' },
     ];
     expect(tokenize(source5)).deep.equal(result5);
+    const source6 = 'cringe console.log(\'abc\');';
+    const result6 = [
+      getToken('cringe'),
+      getToken('console.log'),
+      getToken('('),
+      getToken('\'abc\''),
+      getToken(')'),
+      getToken(';'),
+    ];
+    expect(tokenize(source6)).deep.equal(result6);
+    const source7 = '🤣 console.log(\'abc\');';
+    const result7 = [
+      getToken('🤣'),
+      getToken('console.log'),
+      getToken('('),
+      getToken('\'abc\''),
+      getToken(')'),
+      getToken(';'),
+    ];
+    expect(tokenize(source7)).deep.equal(result7);
   });
 });
 

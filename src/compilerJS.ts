@@ -8,6 +8,7 @@ import {
   CommentExpression,
   FunctionExpression,
   ObjectParserFields,
+  Cringe,
 } from './parser/parser';
 
 export type AnyTypeExpression =
@@ -150,6 +151,12 @@ export const compileComment = (expression: CommentExpression) => {
   return `// ${expression.content}`;
 };
 
+export const compileCringe = (expression: Cringe) => {
+  const injectionBegin = '// \\/ 🤣 CRINGE 🤣 INJECTION BEGIN \\/';
+  const injectionEnd = '// /\\ 🤣 CRINGE 🤣 INJECTION END /\\';
+  return `${injectionBegin}\n${expression.content}\n${injectionEnd}`;
+};
+
 export const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Assignment':
@@ -164,6 +171,8 @@ export const compileStatement = (statement: Statement) => {
       return compileObjectDefenition(statement.value as ObjectDefenitionExpression, 1);
     case 'Comment':
       return compileComment(statement.value as CommentExpression);
+    case 'Cringe':
+      return compileCringe(statement.value as Cringe);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
@@ -171,7 +180,11 @@ export const compileStatement = (statement: Statement) => {
 
 export const compileStatements = (statements: Statement[], endLine: string) => {
   const compiledStatements = statements.map(statement => {
-    const endLn = (statement.type === 'Comment') ? '' : endLine;
+    const endLn =
+      (
+        (statement.type === 'Comment') ||
+        (statement.type === 'Cringe')
+      ) ? '' : endLine;
     return `${compileStatement(statement)}${endLn}`;
   });
   return compiledStatements;

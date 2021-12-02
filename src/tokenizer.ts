@@ -118,10 +118,17 @@ export const tokenize = (source: string) => {
         };
       }
       const isNotLastChar = charIndex !== chars.length - 1;
-      if (
+      const isStringOpened =
+        (charTokenType === TokenType.Quote) &&
+        !isStringCompleted;
+      const isNumOrNameNotCompleted =
         (charTokenType === TokenType.Num && isNotLastChar) ||
-        (charTokenType === TokenType.Name && isNotLastChar) ||
-        (charTokenType === TokenType.Quote && !isStringCompleted)
+        (charTokenType === TokenType.Name && isNotLastChar);
+      const isNeedFeedBuffer = currChar !== ' ';
+
+      if (
+        (isNeedFeedBuffer && isNumOrNameNotCompleted) ||
+        (isStringOpened)
       ) {
         return {
           tokens: currState.tokens,
