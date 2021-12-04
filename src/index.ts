@@ -44,4 +44,7 @@ console.log('statements: ', JSON.stringify(statements));
 const compiledStatements = compileJS(statements);
 console.log('compiledStatements:');
 console.log(compiledStatements);
+console.log('--------');
+console.log('JS code execution result:');
+eval(compiledStatements);
 
