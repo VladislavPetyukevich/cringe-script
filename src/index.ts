@@ -11,7 +11,7 @@ pow2 = a => a * a
 res = pow2,sum(count)(countX2)
 🤣 console.log('res:', res);
 countX3 = 5-3*2/23+ 6
-str = \'a\' + \'b\'
+str = \' a \' + \'b\'
 CRINGE console.log('res:', res);
 countIf = 5 > 3 ? 5 : 3
 🤣 {

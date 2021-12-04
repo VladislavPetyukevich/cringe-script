@@ -109,7 +109,8 @@ export const tokenize = (source: string) => {
   const tokenizedState = chars.reduce(
     (currState, currChar, charIndex) => {
       const charTokenType = getTokenType(currChar);
-      const currToken = getToken(currState.charsBuffer.trim() + currChar);
+      const currCharsBuffer = currState.charsBuffer;
+      const currToken = getToken(currCharsBuffer + currChar);
       const isStringCompleted = currToken.type === TokenType.Str;
       if (isStringCompleted) {
         return {
@@ -118,9 +119,12 @@ export const tokenize = (source: string) => {
         };
       }
       const isNotLastChar = charIndex !== chars.length - 1;
+      const isStringOpenedInBuffer =
+        (!!currState.charsBuffer[0]) &&
+        (getTokenType(currState.charsBuffer[0]) === TokenType.Quote);
       const isStringOpened =
-        (charTokenType === TokenType.Quote) &&
-        !isStringCompleted;
+        (charTokenType === TokenType.Quote) ||
+        isStringOpenedInBuffer;
       const isNumOrNameNotCompleted =
         (charTokenType === TokenType.Num && isNotLastChar) ||
         (charTokenType === TokenType.Name && isNotLastChar);
@@ -136,11 +140,10 @@ export const tokenize = (source: string) => {
         };
       }
 
-      const charsBuffer = currState.charsBuffer.trim();
       return {
         tokens: [
           ...currState.tokens,
-          ...charsBuffer ? [getToken(charsBuffer)] : [],
+          ...currCharsBuffer ? [getToken(currCharsBuffer)] : [],
           ...currChar !== ' ' ? [getToken(currChar)] : []
         ],
         charsBuffer: ''

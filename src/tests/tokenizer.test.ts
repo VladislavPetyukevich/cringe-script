@@ -152,6 +152,20 @@ describe('tokenizer', function() {
       getToken(';'),
     ];
     expect(tokenize(source7)).deep.equal(result7);
+    const source8 = 'str = \'     a b     c     \'';
+    const result8 = [
+      getToken('str'),
+      getToken('='),
+      getToken('\'     a b     c     \''),
+    ];
+    expect(tokenize(source8)).deep.equal(result8);
+    const source9 = 'str = \' a b     c \'';
+    const result9 = [
+      getToken('str'),
+      getToken('='),
+      getToken('\' a b     c \''),
+    ];
+    expect(tokenize(source9)).deep.equal(result9);
   });
 });
 
