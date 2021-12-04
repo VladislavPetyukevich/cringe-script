@@ -27,6 +27,12 @@ export const parseBody = (tokens: Token[]) => {
   }
   const body = tokens.slice(greaterIndex + 1, tokens.length);
   const bodyStatements = parse(body);
+  if (
+    (bodyStatements[0]) &&
+    (bodyStatements[0].type === 'Assignment')
+  ) {
+    throw new Error('Assignments inside function are not allowed');
+  }
   return bodyStatements;
 };
 
