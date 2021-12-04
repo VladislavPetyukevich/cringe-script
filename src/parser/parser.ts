@@ -211,6 +211,19 @@ const parseStatement = (tokens: Token[]): Statement => {
 
 export const parse = (tokens: Token[]): Statement[] => {
   const tokenStatements = splitTokensToStatements(tokens);
-  const statements = tokenStatements.map(parseStatement);
-  return statements;
+  const statements = tokenStatements.map((statement, lineIndex) => {
+    if (statement.length === 0) {
+      return;
+    }
+    try {
+      return parseStatement(statement);
+    } catch (err) {
+      throw new Error(`Line ${lineIndex + 1}: ${err.message}`);
+    }
+  });
+  const resultStatements = statements.filter(
+    (el): el is (ReturnType<typeof parse>)[number] =>
+    Boolean(el)
+  );
+  return resultStatements;
 };

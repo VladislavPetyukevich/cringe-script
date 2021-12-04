@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import {
-  removeBlankLines,
   TokenType,
   getTokenType,
   getComplexTokenType,
@@ -9,11 +8,6 @@ import {
 } from '../tokenizer';
 
 describe('tokenizer', function() {
-  it('remove unnecessary blank lines', function() {
-    const source1 = '\ntest\n\ntest2\n\n  aaa  \n\n\n';
-    expect(removeBlankLines(source1)).equal('test\ntest2\n  aaa  \n');
-  });
-
   it('get basic token type', function() {
     expect(getTokenType('=')).equal(TokenType.Equal);
     expect(getTokenType('*')).equal(TokenType.Multiply);
@@ -68,6 +62,7 @@ describe('tokenizer', function() {
     expect(tokenize(source1)).deep.equal(result1);
     const source2 = '\nnum = 5\n';
     const result2 = [
+      { type: TokenType.NewLine, stringView: '\n' },
       { type: TokenType.Name, stringView: 'num' },
       { type: TokenType.Equal, stringView: '=' },
       { type: TokenType.Num, stringView: '5' },
@@ -106,6 +101,7 @@ describe('tokenizer', function() {
       }
     `;
     const result5 = [
+      { type: TokenType.NewLine, stringView: '\n' },
       { type: TokenType.Name, stringView: 'pair' },
       { type: TokenType.Equal, stringView: '=' },
       { type: TokenType.OpenBrace, stringView: '{' },
