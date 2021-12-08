@@ -89,25 +89,43 @@ export const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenT
   throw new Error('Unxpected token type');
 };
 
+const concatTokensStringView = (tokens: Token[]) =>
+  tokens.map(token => token.stringView).join('');
+
+const getStatementType = (tokens: Token[]): StatementType => {
+  if(checkIsFunctionExpression(tokens)) {
+    return 'FunctionDefinitionExpression';
+  }
+  if(checkIsFunctionCompositionExpression(tokens)) {
+    return 'FunctionCompositionExpression';
+  }
+  if(checkIsTernaryIfExpression(tokens)) {
+    return 'TernaryIf';
+  }
+  if(checkIsObjectExpression(tokens)) {
+    return 'ObjectDefenition';
+  }
+  return 'Expression';
+};
+
 export const parseAnyTypeExpression = (tokens: Token[]) => {
-  const isFunctionExpression = checkIsFunctionExpression(tokens);
-  const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
-  const isTernaryIf = checkIsTernaryIfExpression(tokens);
-  const isObjectDefenitonExpression = checkIsObjectExpression(tokens);
-  if (isFunctionExpression) {
-    return parseFunctionExpression(tokens);
+  const statementType = getStatementType(tokens);
+  try {
+    switch (statementType) {
+      case 'ObjectDefenition':
+        return parseObjectDefenition(tokens);
+      case 'TernaryIf':
+        return parseTernaryIf(tokens);
+      case 'FunctionCompositionExpression':
+        return parseFunctionCompositionExpression(tokens);
+      case 'FunctionDefinitionExpression':
+        return parseFunctionExpression(tokens);
+      default:
+        return parseExpression(tokens);
+    }
+  } catch (err) {
+    throw new Error(`${err.message}\nFor expression:\n${concatTokensStringView(tokens)}\nExpected type of expression: ${statementType}`);
   }
-  if (isFunctionCompositionExpression) {
-    return parseFunctionCompositionExpression(tokens);
-  }
-  if (isTernaryIf) {
-    return parseTernaryIf(tokens);
-  }
-  if (isObjectDefenitonExpression) {
-    const objectParsed = parseObjectDefenition(tokens);
-    return objectParsed;
-  }
-  return parseExpression(tokens);
 };
 
 const splitTokensToStatements = (tokens: Token[]): Token[][] => {
@@ -155,6 +173,7 @@ type StatementType =
   'Assignment' |
   'Expression' |
   'FunctionCompositionExpression' |
+  'FunctionDefinitionExpression' |
   'TernaryIf' |
   'ObjectDefenition' |
   'Comment' |

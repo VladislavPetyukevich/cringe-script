@@ -96,8 +96,7 @@ interface TokenizerState {
 }
 
 export const tokenize = (source: string) => {
-  const withoutBlankLines = source;
-  const chars = withoutBlankLines.split('');
+  const chars = source.split('');
   const initialState: TokenizerState = {
     tokens: [],
     charsBuffer: ''
