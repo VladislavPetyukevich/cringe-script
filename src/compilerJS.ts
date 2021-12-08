@@ -163,6 +163,8 @@ export const compileStatement = (statement: Statement) => {
       return compileAssignment(statement.value as Assignment);
     case 'Expression':
       return compileAnyTypeExpression(statement.value as Expression);
+    case 'FunctionDefinitionExpression':
+      return compileFunctionExpression(statement.value as FunctionExpression);
     case 'FunctionCompositionExpression':
       return compileFunctionComposition(statement.value as FunctionCompositionExpression);
     case 'TernaryIf':

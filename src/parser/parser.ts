@@ -114,12 +114,12 @@ export const parseAnyTypeExpression = (tokens: Token[]) => {
     switch (statementType) {
       case 'ObjectDefenition':
         return parseObjectDefenition(tokens);
-      case 'TernaryIf':
-        return parseTernaryIf(tokens);
       case 'FunctionCompositionExpression':
         return parseFunctionCompositionExpression(tokens);
       case 'FunctionDefinitionExpression':
         return parseFunctionExpression(tokens);
+      case 'TernaryIf':
+        return parseTernaryIf(tokens);
       default:
         return parseExpression(tokens);
     }
@@ -201,6 +201,13 @@ const parseStatement = (tokens: Token[]): Statement => {
       value: parseAssignment(tokens)
     };
   }
+  const isFunctionDefenitionExpression = checkIsFunctionExpression(tokens);
+  if (isFunctionDefenitionExpression) {
+    return {
+      type: 'FunctionDefinitionExpression',
+      value: parseFunctionExpression(tokens)
+    };
+  }
   const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
   if (isFunctionCompositionExpression) {
     return {
@@ -212,7 +219,7 @@ const parseStatement = (tokens: Token[]): Statement => {
   if (isTernaryIf) {
     return {
       type: 'TernaryIf',
-      value: parseAnyTypeExpression(tokens)
+      value: parseTernaryIf(tokens)
     }
   }
   const isObject = checkIsObjectExpression(tokens);
