@@ -95,8 +95,11 @@ interface TokenizerState {
   charsBuffer: string;
 }
 
+const normalizeNewLines = (text: string) =>
+  text.replace(/(\r\n|\r|\n)/gm, '\n');
+
 export const tokenize = (source: string) => {
-  const chars = source.split('');
+  const chars = normalizeNewLines(source).split('');
   const initialState: TokenizerState = {
     tokens: [],
     charsBuffer: ''
