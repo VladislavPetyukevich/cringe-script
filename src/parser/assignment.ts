@@ -11,17 +11,17 @@ export const parseAssignment = (tokens: Token[]): Assignment => {
   };
 };
 
-export const checkIsAssignment = (tokens: Token[]) => {
+export const findIndexOfAssignment = (tokens: Token[]) => {
   try {
     expectTokenType(tokens[0].type, [TokenType.Name]);
     expectTokenType(tokens[1].type, [TokenType.Equal]);
     try {
       expectTokenType(tokens[2].type, [TokenType.Greater]);
-      return false;
+      return -1;
     } catch {
-      return true;
+      return 0;
     }
   } catch {
-    return false;
+    return -1;
   }
 };

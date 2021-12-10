@@ -83,13 +83,49 @@ export const parseFunctionCompositionExpression = (tokens: Token[]): FunctionCom
   };
 };
 
-export const checkIsFunctionExpression = (tokens: Token[]) => {
-  const greater = tokens.find(token => token.type === TokenType.Greater);
-  const equal = tokens.find(token => token.type === TokenType.Equal);
-  return !!greater && !!equal;
+export const findIndexOfFunctionExpression = (tokens: Token[]) => {
+  const greaterIndex = tokens.findIndex(token => token.type === TokenType.Greater);
+  const equalIndex = tokens.findIndex(token => token.type === TokenType.Equal);
+  if (
+    (greaterIndex === -1) ||
+    (equalIndex === -1) ||
+    (equalIndex === 0)
+  ) {
+    return -1;
+  }
+  const isGreaterNextToEuqal = greaterIndex === equalIndex + 1;
+  if (!isGreaterNextToEuqal) {
+    return -1;
+  }
+  expectTokenType(tokens[equalIndex - 1].type, [TokenType.Name]);
+  return equalIndex - 1;
 };
 
-export const checkIsFunctionCompositionExpression = (tokens: Token[]) => {
-  const openBracket = tokens.find(token => token.type === TokenType.OpenBracket);
-  return !!openBracket;
+const findFunctionCompositionStart = (
+  tokens: Token[],
+  startIndex: number,
+  isCheckName = true
+): number => {
+  if (isCheckName) {
+    expectTokenType(tokens[startIndex].type, [TokenType.Name]);
+    return findFunctionCompositionStart(tokens, startIndex - 1, false);
+  }
+  try {
+    expectTokenType(tokens[startIndex].type, [TokenType.Comma]);
+    return findFunctionCompositionStart(tokens, startIndex - 1, true);
+  } catch {
+    return startIndex + 1;
+  }
+};
+
+export const findIndexOfFunctionCompositionExpression = (tokens: Token[]) => {
+  const openBracketIndex = tokens.findIndex(token => token.type === TokenType.OpenBracket);
+  if (
+    (openBracketIndex === -1) ||
+    (openBracketIndex === 0)
+  ) {
+    return -1;
+  }
+  const startIndex = findFunctionCompositionStart(tokens, openBracketIndex - 1);
+  return startIndex;
 };

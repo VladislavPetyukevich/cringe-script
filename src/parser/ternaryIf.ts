@@ -23,8 +23,18 @@ export const parseTernaryIf = (tokens: Token[]): TernaryIfExpression => {
   };
 };
 
-export const checkIsTernaryIfExpression = (tokens: Token[]) => {
-  const questionMark = tokens.find(token => token.type === TokenType.QuestionMark);
-  const colon = tokens.find(token => token.type === TokenType.Colon);
-  return !!colon && !!questionMark;
+export const findIndexOfTernaryIfExpression = (tokens: Token[]) => {
+  const questionMarkIndex = tokens.findIndex(token => token.type === TokenType.QuestionMark);
+  const colonIndexIndex = tokens.findIndex(token => token.type === TokenType.Colon);
+  if (
+    (questionMarkIndex === -1) ||
+    (questionMarkIndex === 0) ||
+    (colonIndexIndex === -1)
+  ) {
+    return -1;
+  }
+  if (colonIndexIndex < questionMarkIndex) {
+    return -1;
+  }
+  return questionMarkIndex;
 };

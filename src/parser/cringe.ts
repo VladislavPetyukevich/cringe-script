@@ -31,17 +31,17 @@ export const parseCringe = (tokens: Token[]): Cringe => {
   };
 };
 
-export const checkIsCringe = (tokens: Token[]) => {
+export const findIndexOfCringe = (tokens: Token[]) => {
   try {
     expectTokenType(tokens[0].type, [TokenType.Name]);
     if (
       (tokens[0].stringView === 'CRINGE') ||
       (tokens[0].stringView === '🤣')
     ) {
-      return true;
+      return 0;
     }
-    return false;
+    return -1;
   } catch {
-    return false;
+    return -1;
   }
 };

@@ -1,21 +1,21 @@
 import { TokenType, Token } from '../tokenizer';
-import { checkIsAssignment, parseAssignment } from './assignment';
-import { checkIsCommentExpression, parseComment } from './comment';
+import { findIndexOfAssignment, parseAssignment } from './assignment';
+import { findIndexOfCommentExpression, parseComment } from './comment';
 import { parseExpression } from './expression';
 import {
-  checkIsFunctionCompositionExpression,
-  checkIsFunctionExpression,
+  findIndexOfFunctionCompositionExpression,
+  findIndexOfFunctionExpression,
   parseFunctionCompositionExpression,
   parseFunctionExpression
 } from './function';
 import {
-  checkIsObjectExpression,
+  findIndexOfObjectExpression,
   ObjectFieldsParserState,
   parseObjectDefenition
 } from './object';
-import { checkIsTernaryIfExpression, parseTernaryIf } from './ternaryIf';
+import { findIndexOfTernaryIfExpression, parseTernaryIf } from './ternaryIf';
 import {
-  checkIsCringe,
+  findIndexOfCringe,
   parseCringe
 } from './cringe';
 
@@ -92,26 +92,36 @@ export const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenT
 const concatTokensStringView = (tokens: Token[]) =>
   tokens.map(token => token.stringView).join('');
 
-const getStatementType = (tokens: Token[]): StatementType => {
-  if(checkIsFunctionExpression(tokens)) {
-    return 'FunctionDefinitionExpression';
-  }
-  if(checkIsFunctionCompositionExpression(tokens)) {
-    return 'FunctionCompositionExpression';
-  }
-  if(checkIsTernaryIfExpression(tokens)) {
-    return 'TernaryIf';
-  }
-  if(checkIsObjectExpression(tokens)) {
-    return 'ObjectDefenition';
-  }
-  return 'Expression';
-};
+const getFirstStatementInOrder = (
+  order: Record<StatementType, number>
+): StatementType | null =>
+  (Object.keys(order) as StatementType[]).reduce<StatementType | null>((minKey, key) => {
+    if (order[key] === -1) {
+      return minKey;
+    }
+    if (!minKey) {
+      return key;
+    }
+    if (order[key] < order[minKey]) {
+      return key;
+    }
+    return minKey;
+  }, null);
 
 export const parseAnyTypeExpression = (tokens: Token[]) => {
-  const statementType = getStatementType(tokens);
+  const statementsOrder = {
+    Cringe: -1,
+    Comment: -1,
+    Assignment: -1,
+    FunctionDefinitionExpression: findIndexOfFunctionExpression(tokens),
+    FunctionCompositionExpression: findIndexOfFunctionCompositionExpression(tokens),
+    TernaryIf: findIndexOfTernaryIfExpression(tokens),
+    ObjectDefenition: findIndexOfObjectExpression(tokens),
+    Expression: -1,
+  };
+  const firstStatementType = getFirstStatementInOrder(statementsOrder);
   try {
-    switch (statementType) {
+    switch (firstStatementType) {
       case 'ObjectDefenition':
         return parseObjectDefenition(tokens);
       case 'FunctionCompositionExpression':
@@ -124,7 +134,7 @@ export const parseAnyTypeExpression = (tokens: Token[]) => {
         return parseExpression(tokens);
     }
   } catch (err) {
-    throw new Error(`${err.message}\nFor expression:\n${concatTokensStringView(tokens)}\nExpected type of expression: ${statementType}`);
+    throw new Error(`${err.message}\nFor expression:\n${concatTokensStringView(tokens)}\nExpected type of expression: ${firstStatementType}`);
   }
 };
 
@@ -180,58 +190,58 @@ type StatementType =
   'Cringe';
 
 const parseStatement = (tokens: Token[]): Statement => {
-  const isCringe = checkIsCringe(tokens);
-  if (isCringe) {
-    return {
-      type: 'Cringe',
-      value: parseCringe(tokens)
-    };
-  }
-  const isComment = checkIsCommentExpression(tokens);
-  if (isComment) {
-    return {
-      type: 'Comment',
-      value: parseComment(tokens)
-    };
-  }
-  const isAssignment = checkIsAssignment(tokens);
-  if (isAssignment) {
-    return {
-      type: 'Assignment',
-      value: parseAssignment(tokens)
-    };
-  }
-  const isFunctionDefenitionExpression = checkIsFunctionExpression(tokens);
-  if (isFunctionDefenitionExpression) {
-    return {
-      type: 'FunctionDefinitionExpression',
-      value: parseFunctionExpression(tokens)
-    };
-  }
-  const isFunctionCompositionExpression = checkIsFunctionCompositionExpression(tokens);
-  if (isFunctionCompositionExpression) {
-    return {
-      type: 'FunctionCompositionExpression',
-      value: parseFunctionCompositionExpression(tokens)
-    };
-  }
-  const isTernaryIf = checkIsTernaryIfExpression(tokens);
-  if (isTernaryIf) {
-    return {
-      type: 'TernaryIf',
-      value: parseTernaryIf(tokens)
-    }
-  }
-  const isObject = checkIsObjectExpression(tokens);
-  if (isObject) {
-    return {
-      type: 'ObjectDefenition',
-      value: parseObjectDefenition(tokens)
-    };
-  }
-  return {
-    type: 'Expression',
-    value: parseAnyTypeExpression(tokens)
+  const statementsOrder = {
+    Cringe: findIndexOfCringe(tokens),
+    Comment: findIndexOfCommentExpression(tokens),
+    Assignment: findIndexOfAssignment(tokens),
+    FunctionDefinitionExpression: findIndexOfFunctionExpression(tokens),
+    FunctionCompositionExpression: findIndexOfFunctionCompositionExpression(tokens),
+    TernaryIf: findIndexOfTernaryIfExpression(tokens),
+    ObjectDefenition: findIndexOfObjectExpression(tokens),
+    Expression: -1,
+  };
+  const firstStatementType = getFirstStatementInOrder(statementsOrder);
+  switch (firstStatementType) {
+    case 'Cringe':
+      return {
+        type: 'Cringe',
+        value: parseCringe(tokens)
+      };
+    case 'Comment':
+      return {
+        type: 'Comment',
+        value: parseComment(tokens)
+      };
+    case 'Assignment':
+      return {
+        type: 'Assignment',
+        value: parseAssignment(tokens)
+      };
+    case 'FunctionDefinitionExpression':
+      return {
+        type: 'FunctionDefinitionExpression',
+        value: parseFunctionExpression(tokens)
+      };
+    case 'FunctionCompositionExpression':
+      return {
+        type: 'FunctionCompositionExpression',
+        value: parseFunctionCompositionExpression(tokens)
+      };
+    case 'TernaryIf':
+      return {
+        type: 'TernaryIf',
+        value: parseTernaryIf(tokens)
+      }
+    case 'ObjectDefenition':
+      return {
+        type: 'ObjectDefenition',
+        value: parseObjectDefenition(tokens)
+      };
+    default:
+      return {
+        type: 'Expression',
+        value: parseAnyTypeExpression(tokens)
+      };
   }
 };
 

@@ -11,13 +11,13 @@ export const parseComment = (tokens: Token[]): CommentExpression => {
   };
 };
 
-export const checkIsCommentExpression = (tokens: Token[]) => {
+export const findIndexOfCommentExpression = (tokens: Token[]) => {
   try {
     const expectedTypes = [TokenType.Devide];
     expectTokenType(tokens[0].type, expectedTypes);
     expectTokenType(tokens[1].type, expectedTypes);
-    return true;
+    return 0;
   } catch {
-    return false;
+    return -1;
   }
 };

@@ -99,9 +99,22 @@ export const parseObjectFields = (tokens: Token[]): ObjectFieldsParserState => {
     return objectFieldsParserState;
 };
 
-export const checkIsObjectExpression = (tokens: Token[]) => {
-  const openBrace = tokens.find(token => token.type === TokenType.OpenBrace);
-  const closeBrace = tokens.find(token => token.type === TokenType.CloseBrace);
-  const colon = tokens.find(token => token.type === TokenType.Colon);
-  return !!openBrace && !!closeBrace && !!colon;
+export const findIndexOfObjectExpression = (tokens: Token[]) => {
+  // TODO: Improve logic here
+  const openBraceIndex = tokens.findIndex(token => token.type === TokenType.OpenBrace);
+  const closeBraceIndex = tokens.findIndex(token => token.type === TokenType.CloseBrace);
+  const colonIndex = tokens.findIndex(token => token.type === TokenType.Colon);
+  if (
+    (openBraceIndex === -1) ||
+    (closeBraceIndex === -1) ||
+    (colonIndex === -1)
+  ) {
+    return -1;
+  }
+  const isColonNextToOpenBrace = openBraceIndex < colonIndex;
+  const isCloseBraceNextToColon = colonIndex < closeBraceIndex;
+  if (!isColonNextToOpenBrace || !isCloseBraceNextToColon) {
+    return -1;
+  }
+  return openBraceIndex;
 };
