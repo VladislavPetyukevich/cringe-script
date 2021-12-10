@@ -126,6 +126,10 @@ export const findIndexOfFunctionCompositionExpression = (tokens: Token[]) => {
   ) {
     return -1;
   }
-  const startIndex = findFunctionCompositionStart(tokens, openBracketIndex - 1);
-  return startIndex;
+  try {
+    const startIndex = findFunctionCompositionStart(tokens, openBracketIndex - 1);
+    return startIndex;
+  } catch {
+    return -1;
+  }
 };
