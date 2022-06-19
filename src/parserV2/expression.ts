@@ -3,7 +3,7 @@ import { Token, TokenType } from '../tokenizer';
 
 export interface Expression {
   type: 'Expression';
-  leftOperand: Token;
+  leftOperand: Token | ExpressionParenthesized;
   operators: Token[] | null;
   rightOperand: Expression | ExpressionParenthesized | null;
 }
@@ -55,42 +55,59 @@ const parseOperators = (tokens: Token[]): Token[] => {
   }
 };
 
-export const parseExpressionParenthesized = (tokens: Token[]): ExpressionParenthesized | null => {
+export const parseExpressionParenthesized = (
+  tokens: Token[]
+): ExpressionParenthesized => {
+  return {
+    type: 'ExpressionParenthesized',
+    expression: parseExpression(tokens),
+  };
+};
+
+export const getTokensExpressionParenthesized = (
+  tokens: Token[]
+): Token[] | null => {
   if (tokens.length === 0) {
     return null;
   }
   if (tokens[0].type !== TokenType.OpenBracket) {
     return null;
   }
-  const closeBracketIndex = tokens.findIndex(token => token.type === TokenType.CloseBracket);
+  const closeBracketIndex = tokens.map(token => token.type).lastIndexOf(TokenType.CloseBracket);
   if (closeBracketIndex === -1) {
     throw new Error(`Failed to parse parenthesized expression. CloseBracket not found: ${tokens.map(token => token.stringView).join('')}`);
   }
-  return {
-    type: 'ExpressionParenthesized',
-    expression: parseExpression(tokens.slice(1, closeBracketIndex + 1)),
-  };
+  return tokens.slice(1, closeBracketIndex);
 };
 
-export const parseExpression = (tokens: Token[]): Expression | ExpressionParenthesized => {
-  const expressionParenthesized = parseExpressionParenthesized(tokens);
-  if (expressionParenthesized) {
-    return expressionParenthesized;
-  }
-  const leftOperand = parseOperand(tokens);
-  const operators = parseOperators(tokens.slice(1));
+export const parseExpression = (
+  tokens: Token[]
+): Expression | ExpressionParenthesized => {
+  const expressionParenthesizedTokens =
+    getTokensExpressionParenthesized(tokens);
+  const leftOperandTokens =
+    expressionParenthesizedTokens || [parseOperand(tokens)];
+  const leftOperand = expressionParenthesizedTokens ?
+    parseExpressionParenthesized(leftOperandTokens) :
+    leftOperandTokens[0];
+  const operatorsIndex = expressionParenthesizedTokens ?
+    leftOperandTokens.length + 2 : // 2 - OpenBracket and CloseBracket
+    leftOperandTokens.length;
+  const operators = parseOperators(tokens.slice(operatorsIndex));
   if (operators.length === 0) {
     return {
       type: 'Expression',
-      leftOperand,
+      leftOperand: leftOperand,
       operators: null,
       rightOperand: null,
     };
   }
+  const rightOperandTokens = tokens.slice(operatorsIndex + operators.length);
+  const rightOperand = parseExpression(rightOperandTokens);
   return {
     type: 'Expression',
     leftOperand,
     operators,
-    rightOperand: parseExpression(tokens.slice(1 + operators.length)),
+    rightOperand,
   };
 };

@@ -3,25 +3,30 @@ import {
 } from './parserV2/parserV2';
 import { Expression, ExpressionParenthesized } from './parserV2/expression';
 
-export const compileExpressionParenthesized= (expression: ExpressionParenthesized): string => {
+export const compileExpressionParenthesized= (
+  expression: ExpressionParenthesized
+): string => {
   return `(${compileExpression(expression.expression)})`;
 };
 
-export const compileExpression = (expression: Expression | ExpressionParenthesized | null): string => {
+export const compileExpression = (
+  expression: Expression | ExpressionParenthesized | null
+): string => {
   if (!expression) {
     return '';
   }
   if (expression.type === 'ExpressionParenthesized') {
     return compileExpressionParenthesized(expression);
   }
+  const leftStr = (expression.leftOperand.type === 'ExpressionParenthesized') ?
+    compileExpressionParenthesized(expression.leftOperand) :
+    expression.leftOperand.stringView;
   if (expression.operators === null) {
-    return expression.leftOperand.stringView;
+    return leftStr;
   }
-  
-  const leftStr = expression.leftOperand.stringView;
   const operStr = expression.operators.reduce(
-    (accum, currVal) => currVal.stringView + accum,
-    '');
+    (accum, currVal) => currVal.stringView + accum, ''
+  );
   return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)}`;
 };
 
@@ -29,8 +34,8 @@ export const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Expression':
       return compileExpression(statement.value);
-      case 'ExpressionParenthesized':
-        return compileExpressionParenthesized(statement.value);
+    case 'ExpressionParenthesized':
+      return compileExpressionParenthesized(statement.value);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
