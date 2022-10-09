@@ -4,6 +4,11 @@ import {
   parseExpression
 } from './expression';
 import {
+  Assignment,
+  checkIsAssignment,
+  parseAssignment
+} from './assignment';
+import {
   Token,
   TokenType
 } from '../tokenizer';
@@ -15,7 +20,10 @@ export type Statement =
 } | {
   type: 'ExpressionParenthesized',
   value: ExpressionParenthesized;
-}
+} | {
+  type: 'Assignment',
+  value: Assignment;
+};
 
 export const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) => {
   if (expectedTokenTypes.includes(tokenType)) {
@@ -67,6 +75,13 @@ const splitTokensToStatements = (tokens: Token[]): Token[][] => {
 };
 
 const parseStatement = (tokens: Token[]): Statement => {
+  const isAssignment = checkIsAssignment(tokens);
+  if (isAssignment) {
+    return {
+      type: 'Assignment',
+      value: parseAssignment(tokens),
+    };
+  }
   const parsedExpression = parseExpression(tokens);
   if (parsedExpression.type === 'Expression') {
     return {

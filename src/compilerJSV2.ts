@@ -2,6 +2,7 @@ import {
   Statement,
 } from './parserV2/parserV2';
 import { Expression, ExpressionParenthesized } from './parserV2/expression';
+import { Assignment } from './parserV2/assignment';
 
 export const compileExpressionParenthesized= (
   expression: ExpressionParenthesized
@@ -30,12 +31,18 @@ export const compileExpression = (
   return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)}`;
 };
 
+export const compileAssignment = (
+  assignment: Assignment
+): string => {
+  return `${assignment.variableName} = ${compileExpression(assignment.value)}`;
+};
+
 export const compileStatement = (statement: Statement) => {
   switch (statement.type) {
     case 'Expression':
       return compileExpression(statement.value);
-    case 'ExpressionParenthesized':
-      return compileExpressionParenthesized(statement.value);
+    case 'Assignment':
+      return compileAssignment(statement.value);
     default:
       throw new Error(`Unknown statement: ${statement.type}`);
   }
