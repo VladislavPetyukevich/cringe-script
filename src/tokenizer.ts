@@ -19,6 +19,8 @@ export enum TokenType {
   ExclamationMark, // 17
   Colon,           // 18
   QuestionMark,    // 19
+  Or,              // 20
+  And,             // 21
 }
 
 export const getComplexTokenType = (stringView: string) => {
@@ -27,6 +29,12 @@ export const getComplexTokenType = (stringView: string) => {
     (stringView[stringView.length - 1] === '\'')
   ) {
     return TokenType.Str;
+  }
+  if (stringView === '||') {
+    return TokenType.Or;
+  }
+  if (stringView === '&&') {
+    return TokenType.And;
   }
   const intRepresentation = parseInt(stringView, 10);
   if (isNaN(intRepresentation)) {
