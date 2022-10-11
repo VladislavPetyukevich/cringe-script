@@ -1,6 +1,5 @@
 import {
   Expression,
-  ExpressionParenthesized,
   parseExpression
 } from './expression';
 import {
@@ -17,9 +16,6 @@ export type Statement =
 {
   type: 'Expression',
   value: Expression;
-} | {
-  type: 'ExpressionParenthesized',
-  value: ExpressionParenthesized;
 } | {
   type: 'Assignment',
   value: Assignment;
@@ -83,19 +79,11 @@ const parseStatement = (tokens: Token[]): Statement => {
     };
   }
   const parsedExpression = parseExpression(tokens);
-  if (parsedExpression.type === 'Expression') {
-    return {
-      type: 'Expression',
-      value: parsedExpression,
-    };
-  }
-  if (parsedExpression.type === 'ExpressionParenthesized') {
-    return {
-      type: 'ExpressionParenthesized',
-      value: parsedExpression,
-    };
-  }
-  throw new Error(`Falied to parse statement: ${tokens.map(token => token.stringView).join('')}`)
+  return {
+    type: 'Expression',
+    value: parsedExpression,
+  };
+  // throw new Error(`Falied to parse statement: ${tokens.map(token => token.stringView).join('')}`)
 };
 
 export const parse = (tokens: Token[]): Statement[] => {
@@ -107,7 +95,11 @@ export const parse = (tokens: Token[]): Statement[] => {
     try {
       return parseStatement(statement);
     } catch (err) {
-      throw new Error(`Line ${lineIndex + 1}: ${err.message}`);
+      const message =
+        (typeof err === 'string') ? err :
+        (err instanceof Error) ? err.message :
+        'unknown error';
+      throw new Error(`Line ${lineIndex + 1}: ${message}`);
     }
   });
   const resultStatements = statements.filter(

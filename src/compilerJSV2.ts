@@ -1,26 +1,56 @@
 import {
   Statement,
 } from './parserV2/parserV2';
-import { Expression, ExpressionParenthesized } from './parserV2/expression';
-import { Assignment } from './parserV2/assignment';
-
-export const compileExpressionParenthesized= (
-  expression: ExpressionParenthesized
-): string => {
-  return `(${compileExpression(expression.expression)})`;
-};
+import {
+  Expression,
+} from './parserV2/expression';
+import {
+  MathematicalExpression,
+  MathematicalExpressionParenthesized
+} from './parserV2/mathematicalExpression';
+import {
+  Assignment
+} from './parserV2/assignment';
+import {
+  FunctionDefinition
+} from './parserV2/functionDefinition';
 
 export const compileExpression = (
-  expression: Expression | ExpressionParenthesized | null
+  expression: Expression
+): string => {
+  switch (expression.type) {
+    case 'MathematicalExpression':
+      return compileMathematicalExpression(expression.value);
+    case 'FunctionDefinition':
+      return compileFunctionDefinition(expression.value);
+    default:
+      throw new Error(`Unknown expression type: ${expression.type}`);
+  }
+};
+
+export const compileFunctionDefinition = (
+  functionDefinition: FunctionDefinition
+): string => {
+  return `${functionDefinition.arg} => ${compileExpression(functionDefinition.body)}`;
+};
+
+export const compileMathematicalExpressionParenthesized= (
+  expression: MathematicalExpressionParenthesized
+): string => {
+  return `(${compileMathematicalExpression(expression.expression)})`;
+};
+
+export const compileMathematicalExpression = (
+  expression: MathematicalExpression | MathematicalExpressionParenthesized | null
 ): string => {
   if (!expression) {
     return '';
   }
-  if (expression.type === 'ExpressionParenthesized') {
-    return compileExpressionParenthesized(expression);
+  if (expression.type === 'MathematicalExpressionParenthesized') {
+    return compileMathematicalExpressionParenthesized(expression);
   }
-  const leftStr = (expression.leftOperand.type === 'ExpressionParenthesized') ?
-    compileExpressionParenthesized(expression.leftOperand) :
+  const leftStr = (expression.leftOperand.type === 'MathematicalExpressionParenthesized') ?
+    compileMathematicalExpressionParenthesized(expression.leftOperand) :
     expression.leftOperand.stringView;
   if (expression.operators === null) {
     return leftStr;
@@ -28,7 +58,7 @@ export const compileExpression = (
   const operStr = expression.operators.reduce(
     (accum, currVal) => currVal.stringView + accum, ''
   );
-  return `${leftStr} ${operStr} ${compileExpression(expression.rightOperand)}`;
+  return `${leftStr} ${operStr} ${compileMathematicalExpression(expression.rightOperand)}`;
 };
 
 export const compileAssignment = (

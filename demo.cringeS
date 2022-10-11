@@ -9,3 +9,5 @@ false && true
 count = 1
 count2 = 5 * 2
 count3 = 1 * (2 + 3)
+pow2 = a => a * a
+sum = a => b => a + b

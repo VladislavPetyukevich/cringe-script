@@ -1,12 +1,11 @@
 import { Token, TokenType } from '../tokenizer';
-import { Expression, ExpressionParenthesized, parseExpression } from './expression';
+import { Expression, parseExpression } from './expression';
 import { expectTokenType } from './parserV2';
 
 export interface Assignment {
   type: 'Assignment';
   variableName: string;
-  value:
-    Expression | ExpressionParenthesized;
+  value: Expression;
 }
 
 export const checkIsAssignment = (
