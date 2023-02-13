@@ -5,6 +5,11 @@ import {
   parseFunctionDefinition
 } from './functionDefinition';
 import {
+  checkIsFunctionCall,
+  FunctionCall,
+  parseFunctionCall
+} from './functionCall';
+import {
   MathematicalExpression,
   MathematicalExpressionParenthesized,
   parseMathematicalExpression
@@ -13,6 +18,9 @@ import {
 export type Expression = {
   type: 'FunctionDefinition';
   value: FunctionDefinition;
+} | {
+  type: 'FunctionCall';
+  value: FunctionCall;
 } | {
   type: 'MathematicalExpression';
   value: MathematicalExpression | MathematicalExpressionParenthesized;
@@ -26,6 +34,13 @@ export const parseExpression = (
     return {
       type: 'FunctionDefinition',
       value: parseFunctionDefinition(tokens),
+    }
+  }
+  const isFunctionCall = checkIsFunctionCall(tokens);
+  if (isFunctionCall) {
+    return {
+      type: 'FunctionCall',
+      value: parseFunctionCall(tokens),
     }
   }
   return {

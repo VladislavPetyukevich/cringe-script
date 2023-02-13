@@ -14,6 +14,9 @@ import {
 import {
   FunctionDefinition
 } from './parserV2/functionDefinition';
+import {
+  FunctionCall
+} from './parserV2/functionCall';
 
 export const compileExpression = (
   expression: Expression
@@ -23,6 +26,8 @@ export const compileExpression = (
       return compileMathematicalExpression(expression.value);
     case 'FunctionDefinition':
       return compileFunctionDefinition(expression.value);
+    case 'FunctionCall':
+      return compileFunctionCall(expression.value);
     default:
       throw new Error(`Unknown expression type: ${expression.type}`);
   }
@@ -32,6 +37,12 @@ export const compileFunctionDefinition = (
   functionDefinition: FunctionDefinition
 ): string => {
   return `${functionDefinition.arg} => ${compileExpression(functionDefinition.body)}`;
+};
+
+export const compileFunctionCall = (
+  functionCall: FunctionCall
+): string => {
+  return `${functionCall.name}(${functionCall.argumentName})`;
 };
 
 export const compileMathematicalExpressionParenthesized= (
