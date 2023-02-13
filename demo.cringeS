@@ -12,4 +12,4 @@ count3 = 1 * (2 + 3)
 pow2 = a => a * a
 sum = a => b => a + b
 powResult = pow2(4)
-pow2(88)
+pow2(88 + 44)
