@@ -11,5 +11,7 @@ count2 = 5 * 2
 count3 = 1 * (2 + 3)
 pow2 = a => a * a
 sum = a => b => a + b
+sum3 = a => b => c => a + b + c
 powResult = pow2(4)
 pow2(88 + 44)
+sum3Result = sum3(2)(4)(6)

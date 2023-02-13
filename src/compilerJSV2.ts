@@ -42,7 +42,11 @@ export const compileFunctionDefinition = (
 export const compileFunctionCall = (
   functionCall: FunctionCall
 ): string => {
-  return `${functionCall.name}(${compileExpression(functionCall.argument)})`;
+  const argument = compileExpression(functionCall.argument);
+  if ('name' in functionCall) {
+    return `${functionCall.name}(${argument})`;
+  }
+  return `${compileFunctionCall(functionCall.prevFunctionCall)}(${argument})`;
 };
 
 export const compileMathematicalExpressionParenthesized= (

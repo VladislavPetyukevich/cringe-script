@@ -2,10 +2,13 @@ import { Token, TokenType } from '../tokenizer';
 import { Expression, parseExpression } from './expression';
 import { expectTokenType } from './parserV2';
 
-export interface FunctionCall {
+export type FunctionCall = {
   name: string;
   argument: Expression;
-}
+} | {
+  prevFunctionCall: FunctionCall;
+  argument: Expression;
+};
 
 export const checkIsFunctionCall = (
   tokens: Token[]
@@ -19,28 +22,52 @@ export const checkIsFunctionCall = (
   } catch {
     return false;
   }
-  for (let i = 2; i < tokens.length; i++) {
-    if (tokens[i].type === TokenType.CloseBracket) {
+  try {
+    let isBracketOpen = true;
+    const setIsBracketOpen = (newValue: boolean) => {
+      if (isBracketOpen === newValue) {
+        throw new Error();
+      }
+      isBracketOpen = newValue;
+    };
+    for (let i = 2; i < tokens.length; i++) {
+      if (tokens[i].type === TokenType.CloseBracket) {
+        setIsBracketOpen(false);
+      }
+      if (tokens[i].type === TokenType.OpenBracket) {
+        setIsBracketOpen(true);
+      }
+    }
+    if (isBracketOpen) {
+      return false;
+    } else {
       return true;
     }
-    if (tokens[i].type === TokenType.OpenBracket) {
-      return false;
-    }
+  } catch {
+    return false;
   }
-  return false;
 };
 
 export const parseFunctionCall = (
   tokens: Token[]
 ): FunctionCall => {
-  const openBracketIndex = tokens.findIndex(
-    token => token.type === TokenType.OpenBracket
+  const tokenTypes = tokens.map(token => token.type);
+  const openBracketLastIndex = tokenTypes.lastIndexOf(TokenType.OpenBracket);
+  const closeBracketLastIndex = tokenTypes.lastIndexOf(TokenType.CloseBracket);
+  const argument = parseExpression(
+    tokens.slice(openBracketLastIndex + 1, closeBracketLastIndex)
   );
-  const closeBracketIndex = tokens.findIndex(
-    token => token.type === TokenType.CloseBracket
-  );
+  if (openBracketLastIndex > 1) {
+    const prevFunctionCall = parseFunctionCall(
+      tokens.slice(0, openBracketLastIndex)
+    );
+    return {
+      prevFunctionCall,
+      argument,
+    };
+  }
   return {
     name: tokens[0].stringView,
-    argument: parseExpression(tokens.slice(openBracketIndex + 1, closeBracketIndex))
+    argument,
   };
 };
