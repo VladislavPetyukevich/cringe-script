@@ -16,3 +16,10 @@ powResult = pow2(4)
 pow2(88 + 44)
 sum3Result = sum3(2)(4)(6)
 str = 'a' + 'b'
+pair = {
+  first: 69 + 69
+  second: {
+    first: pow2(123)
+    second: 777
+  }
+}

@@ -26,7 +26,7 @@ export const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenT
     return true;
   }
 
-  throw new Error('Unxpected token type');
+  throw new Error(`Unxpected token type: ${tokenType}`);
 };
 
 const splitTokensToStatements = (tokens: Token[]): Token[][] => {

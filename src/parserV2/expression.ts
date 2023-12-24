@@ -14,6 +14,11 @@ import {
   MathematicalExpressionParenthesized,
   parseMathematicalExpression
 } from './mathematicalExpression';
+import {
+  checkIsObjectDefinition,
+  ObjectDefinition,
+  parseObjectDefinition
+} from './objectDefinition';
 
 export type Expression = {
   type: 'FunctionDefinition';
@@ -21,6 +26,9 @@ export type Expression = {
 } | {
   type: 'FunctionCall';
   value: FunctionCall;
+} | {
+  type: 'ObjectDefinition';
+  value: ObjectDefinition;
 } | {
   type: 'MathematicalExpression';
   value: MathematicalExpression | MathematicalExpressionParenthesized;
@@ -30,11 +38,18 @@ export const parseExpression = (
   tokens: Token[]
 ): Expression => {
   const isFunctionDefinition = checkIsFunctionDefinition(tokens);
+  const isObjectDefinition = checkIsObjectDefinition(tokens);
   if (isFunctionDefinition) {
     return {
       type: 'FunctionDefinition',
       value: parseFunctionDefinition(tokens),
     }
+  }
+  if (isObjectDefinition) {
+    return {
+      type: 'ObjectDefinition',
+      value: parseObjectDefinition(tokens),
+    };
   }
   const isFunctionCall = checkIsFunctionCall(tokens);
   if (isFunctionCall) {

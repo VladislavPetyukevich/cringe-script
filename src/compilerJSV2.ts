@@ -17,9 +17,13 @@ import {
 import {
   FunctionCall
 } from './parserV2/functionCall';
+import {
+  ObjectDefinition
+} from './parserV2/objectDefinition';
 
 export const compileExpression = (
-  expression: Expression
+  expression: Expression,
+  nestedLevel = 1,
 ): string => {
   switch (expression.type) {
     case 'MathematicalExpression':
@@ -28,6 +32,8 @@ export const compileExpression = (
       return compileFunctionDefinition(expression.value);
     case 'FunctionCall':
       return compileFunctionCall(expression.value);
+    case 'ObjectDefinition':
+      return compileObjectDefinition(expression.value, nestedLevel);
     default:
       throw new Error(`Unknown expression type: ${expression.type}`);
   }
@@ -49,7 +55,26 @@ export const compileFunctionCall = (
   return `${compileFunctionCall(functionCall.prevFunctionCall)}(${argument})`;
 };
 
-export const compileMathematicalExpressionParenthesized= (
+const tabsForLevel = 2;
+
+const getTabs = (nestedLevel = 1) =>
+  Array.from({ length: nestedLevel * tabsForLevel }, () => ' ')
+    .join('');
+
+export const compileObjectDefinition = (
+  objectDefinition: ObjectDefinition,
+  nestedLevel = 1,
+): string => {
+  const inner = objectDefinition.fields
+    .map(
+      field => `${getTabs(nestedLevel)}${field.name}: ${compileExpression(field.value, nestedLevel + 1)}`
+    )
+    .map(line => `${line},`)
+    .join('\n');
+  return `{\n${inner}\n${getTabs(nestedLevel - 1)}}`
+};
+
+export const compileMathematicalExpressionParenthesized = (
   expression: MathematicalExpressionParenthesized
 ): string => {
   return `(${compileMathematicalExpression(expression.expression)})`;
