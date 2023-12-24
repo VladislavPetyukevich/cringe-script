@@ -79,7 +79,7 @@ export const compileMathematicalExpression = (
 export const compileAssignment = (
   assignment: Assignment
 ): string => {
-  return `${assignment.variableName} = ${compileExpression(assignment.value)}`;
+  return `const ${assignment.variableName} = ${compileExpression(assignment.value)}`;
 };
 
 export const compileStatement = (statement: Statement) => {
