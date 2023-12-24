@@ -20,6 +20,9 @@ import {
 import {
   ObjectDefinition
 } from './parserV2/objectDefinition';
+import {
+  TernaryIf
+} from './parserV2/ternaryIf';
 
 export const compileExpression = (
   expression: Expression,
@@ -34,6 +37,8 @@ export const compileExpression = (
       return compileFunctionCall(expression.value);
     case 'ObjectDefinition':
       return compileObjectDefinition(expression.value, nestedLevel);
+    case 'TernaryIf':
+      return compileTernaryIf(expression.value);
     default:
       throw new Error(`Unknown expression type: ${expression.type}`);
   }
@@ -72,6 +77,15 @@ export const compileObjectDefinition = (
     .map(line => `${line},`)
     .join('\n');
   return `{\n${inner}\n${getTabs(nestedLevel - 1)}}`
+};
+
+export const compileTernaryIf = (
+  ternaryIf: TernaryIf,
+): string => {
+  const condition = compileExpression(ternaryIf.condition);
+  const trueBranch = compileExpression(ternaryIf.trueBranch);
+  const falseBranch = compileExpression(ternaryIf.falseBranch);
+  return `${condition} ? ${trueBranch} : ${falseBranch}`;
 };
 
 export const compileMathematicalExpressionParenthesized = (

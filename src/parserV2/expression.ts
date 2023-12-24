@@ -19,6 +19,11 @@ import {
   ObjectDefinition,
   parseObjectDefinition
 } from './objectDefinition';
+import {
+  checkIsTernaryIf,
+  parseTernaryIf,
+  TernaryIf
+} from './ternaryIf';
 
 export type Expression = {
   type: 'FunctionDefinition';
@@ -30,6 +35,9 @@ export type Expression = {
   type: 'ObjectDefinition';
   value: ObjectDefinition;
 } | {
+  type: 'TernaryIf';
+  value: TernaryIf;
+} | {
   type: 'MathematicalExpression';
   value: MathematicalExpression | MathematicalExpressionParenthesized;
 };
@@ -38,13 +46,13 @@ export const parseExpression = (
   tokens: Token[]
 ): Expression => {
   const isFunctionDefinition = checkIsFunctionDefinition(tokens);
-  const isObjectDefinition = checkIsObjectDefinition(tokens);
   if (isFunctionDefinition) {
     return {
       type: 'FunctionDefinition',
       value: parseFunctionDefinition(tokens),
     }
   }
+  const isObjectDefinition = checkIsObjectDefinition(tokens);
   if (isObjectDefinition) {
     return {
       type: 'ObjectDefinition',
@@ -56,7 +64,14 @@ export const parseExpression = (
     return {
       type: 'FunctionCall',
       value: parseFunctionCall(tokens),
-    }
+    };
+  }
+  const isTernaryIf = checkIsTernaryIf(tokens);
+  if (isTernaryIf) {
+    return {
+      type: 'TernaryIf',
+      value: parseTernaryIf(tokens),
+    };
   }
   return {
     type: 'MathematicalExpression',

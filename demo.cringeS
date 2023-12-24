@@ -23,3 +23,4 @@ pair = {
     second: 777
   }
 }
+ternaryIf = 5 > 3 ? 11 ? 1 : pow2(88 + 44) : 3
