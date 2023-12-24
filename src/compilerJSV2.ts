@@ -40,7 +40,7 @@ export const compileExpression = (
     case 'TernaryIf':
       return compileTernaryIf(expression.value);
     default:
-      throw new Error(`Unknown expression type: ${expression.type}`);
+      throw new Error(`Unknown expression type: ${(expression as Expression).type}`);
   }
 };
 
@@ -128,7 +128,7 @@ export const compileStatement = (statement: Statement) => {
     case 'Assignment':
       return compileAssignment(statement.value);
     default:
-      throw new Error(`Unknown statement: ${statement.type}`);
+      throw new Error(`Unknown statement: ${(statement as Statement).type}`);
   }
 };
 
