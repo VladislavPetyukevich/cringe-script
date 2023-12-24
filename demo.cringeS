@@ -15,3 +15,4 @@ sum3 = a => b => c => a + b + c
 powResult = pow2(4)
 pow2(88 + 44)
 sum3Result = sum3(2)(4)(6)
+str = 'a' + 'b'

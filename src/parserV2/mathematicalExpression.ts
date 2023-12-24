@@ -16,6 +16,7 @@ export interface MathematicalExpressionParenthesized {
 const operandTypes = [
   TokenType.Name,
   TokenType.Num,
+  TokenType.Str,
 ];
 
 const operatorTypes = [
