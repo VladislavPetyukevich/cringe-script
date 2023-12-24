@@ -26,6 +26,9 @@ import {
 import {
   Comment
 } from './parserV2/comment';
+import {
+  Cringe
+} from './parserV2/cringe';
 
 export const compileExpression = (
   expression: Expression,
@@ -44,6 +47,8 @@ export const compileExpression = (
       return compileTernaryIf(expression.value);
     case 'Comment':
       return compileComment(expression.value);
+    case 'Cringe':
+      return compileCringe(expression.value);
     default:
       throw new Error(`Unknown expression type: ${(expression as Expression).type}`);
   }
@@ -99,6 +104,12 @@ export const compileComment = (
   return `// ${comment.content}`;
 };
 
+export const compileCringe = (
+  cringe: Cringe,
+): string => {
+  return cringe.content;
+};
+
 export const compileMathematicalExpressionParenthesized = (
   expression: MathematicalExpressionParenthesized
 ): string => {
@@ -146,7 +157,8 @@ export const compileStatement = (statement: Statement) => {
 export const compileStatements = (statements: Statement[], endLine: string) => {
   const compiledStatements = statements.map(statement => {
     const noEndLine =
-      statement.value.type === 'Comment';
+      statement.value.type === 'Comment' ||
+      statement.value.type === 'Cringe';
     return `${compileStatement(statement)}${noEndLine ? '' : endLine}`;
   });
   return compiledStatements;

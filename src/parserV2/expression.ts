@@ -29,6 +29,11 @@ import {
   Comment,
   parseComment
 } from './comment';
+import {
+  checkIsCringe,
+  Cringe,
+  parseCringe
+} from './cringe';
 
 export type Expression = {
   type: 'FunctionDefinition';
@@ -45,6 +50,9 @@ export type Expression = {
 } | {
   type: 'Comment';
   value: Comment;
+} | {
+  type: 'Cringe';
+  value: Cringe;
 } | {
   type: 'MathematicalExpression';
   value: MathematicalExpression | MathematicalExpressionParenthesized;
@@ -86,6 +94,13 @@ export const parseExpression = (
     return {
       type: 'Comment',
       value: parseComment(tokens),
+    };
+  }
+  const isCringe = checkIsCringe(tokens);
+  if (isCringe) {
+    return {
+      type: 'Cringe',
+      value: parseCringe(tokens),
     };
   }
   return {
