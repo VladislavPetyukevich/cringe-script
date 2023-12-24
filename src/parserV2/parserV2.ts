@@ -83,7 +83,6 @@ const parseStatement = (tokens: Token[]): Statement => {
     type: 'Expression',
     value: parsedExpression,
   };
-  // throw new Error(`Falied to parse statement: ${tokens.map(token => token.stringView).join('')}`)
 };
 
 export const parse = (tokens: Token[]): Statement[] => {
