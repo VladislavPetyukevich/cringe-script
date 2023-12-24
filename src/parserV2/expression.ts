@@ -24,6 +24,11 @@ import {
   parseTernaryIf,
   TernaryIf
 } from './ternaryIf';
+import {
+  checkIsComment,
+  Comment,
+  parseComment
+} from './comment';
 
 export type Expression = {
   type: 'FunctionDefinition';
@@ -37,6 +42,9 @@ export type Expression = {
 } | {
   type: 'TernaryIf';
   value: TernaryIf;
+} | {
+  type: 'Comment';
+  value: Comment;
 } | {
   type: 'MathematicalExpression';
   value: MathematicalExpression | MathematicalExpressionParenthesized;
@@ -71,6 +79,13 @@ export const parseExpression = (
     return {
       type: 'TernaryIf',
       value: parseTernaryIf(tokens),
+    };
+  }
+  const isComment = checkIsComment(tokens);
+  if (isComment) {
+    return {
+      type: 'Comment',
+      value: parseComment(tokens),
     };
   }
   return {

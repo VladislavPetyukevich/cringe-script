@@ -23,6 +23,9 @@ import {
 import {
   TernaryIf
 } from './parserV2/ternaryIf';
+import {
+  Comment
+} from './parserV2/comment';
 
 export const compileExpression = (
   expression: Expression,
@@ -39,6 +42,8 @@ export const compileExpression = (
       return compileObjectDefinition(expression.value, nestedLevel);
     case 'TernaryIf':
       return compileTernaryIf(expression.value);
+    case 'Comment':
+      return compileComment(expression.value);
     default:
       throw new Error(`Unknown expression type: ${(expression as Expression).type}`);
   }
@@ -88,6 +93,12 @@ export const compileTernaryIf = (
   return `${condition} ? ${trueBranch} : ${falseBranch}`;
 };
 
+export const compileComment = (
+  comment: Comment,
+): string => {
+  return `// ${comment.content}`;
+};
+
 export const compileMathematicalExpressionParenthesized = (
   expression: MathematicalExpressionParenthesized
 ): string => {
@@ -134,7 +145,9 @@ export const compileStatement = (statement: Statement) => {
 
 export const compileStatements = (statements: Statement[], endLine: string) => {
   const compiledStatements = statements.map(statement => {
-    return `${compileStatement(statement)}${endLine}`;
+    const noEndLine =
+      statement.value.type === 'Comment';
+    return `${compileStatement(statement)}${noEndLine ? '' : endLine}`;
   });
   return compiledStatements;
 };

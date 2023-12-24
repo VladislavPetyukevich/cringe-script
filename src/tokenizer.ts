@@ -137,6 +137,13 @@ export const tokenize = (source: string) => {
         (charTokenType === TokenType.Name && isNotLastChar);
       const isNeedFeedBuffer = currChar !== ' ';
 
+      if (charTokenType === TokenType.Name && !isNotLastChar) {
+        return {
+          tokens: [...currState.tokens, currToken],
+          charsBuffer: ''
+        };
+      }
+
       if (
         (isNeedFeedBuffer && isNumOrNameNotCompleted) ||
         (isStringOpened)
