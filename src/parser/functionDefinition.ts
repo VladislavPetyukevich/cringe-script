@@ -1,6 +1,6 @@
 import { Token, TokenType } from '../tokenizer';
 import { Expression, parseExpression } from './expression';
-import { expectTokenType } from './parserV2';
+import { expectTokenType } from './parser';
 
 export interface FunctionDefinition {
   arg: string;

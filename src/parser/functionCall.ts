@@ -1,6 +1,6 @@
 import { Token, TokenType } from '../tokenizer';
 import { Expression, parseExpression } from './expression';
-import { expectTokenType } from './parserV2';
+import { expectTokenType } from './parser';
 
 export type FunctionCall = {
   name: string;
@@ -31,6 +31,9 @@ export const checkIsFunctionCall = (
       isBracketOpen = newValue;
     };
     for (let i = 2; i < tokens.length; i++) {
+      if (!isBracketOpen && tokens[i].type !== TokenType.OpenBracket) {
+        return false;
+      }
       if (tokens[i].type === TokenType.CloseBracket) {
         setIsBracketOpen(false);
       }

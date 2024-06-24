@@ -1,141 +1,32 @@
-import { TokenType, Token } from '../tokenizer';
-import { findIndexOfAssignment, parseAssignment } from './assignment';
-import { findIndexOfCommentExpression, parseComment } from './comment';
-import { parseExpression } from './expression';
 import {
-  findIndexOfFunctionCompositionExpression,
-  findIndexOfFunctionExpression,
-  parseFunctionCompositionExpression,
-  parseFunctionExpression
-} from './function';
+  Expression,
+  parseExpression
+} from './expression';
 import {
-  findIndexOfObjectExpression,
-  ObjectFieldsParserState,
-  parseObjectDefenition
-} from './object';
-import { findIndexOfTernaryIfExpression, parseTernaryIf } from './ternaryIf';
+  Assignment,
+  checkIsAssignment,
+  parseAssignment
+} from './assignment';
 import {
-  findIndexOfCringe,
-  parseCringe
-} from './cringe';
+  Token,
+  TokenType
+} from '../tokenizer';
 
-export interface Statement {
-  type: StatementType;
-  value:
-    Assignment |
-    Expression |
-    FunctionExpression |
-    FunctionCompositionExpression |
-    TernaryIfExpression |
-    ObjectDefenitionExpression |
-    CommentExpression |
-    Cringe;
-}
-
-export interface FunctionExpression {
-  args: Token[];
-  body: Statement[];
-}
-
-export interface FunctionCompositionExpression {
-  functionNames: Token[];
-  args: Statement[][];
-}
-
-export interface Expression {
-  leftOperand: Token;
-  operator: null | Token[];
-  rightOperand: null | Expression;
-}
-
-export interface TernaryIfExpression  {
-  condition: Statement[];
-  statementTrue: Statement[];
-  statementFalse: Statement[];
-}
-
-export interface ObjectParserFields {
-  name: string;
-  value: Statement | ObjectFieldsParserState;
-}
-
-export interface ObjectDefenitionExpression {
-  fields: ObjectParserFields[];
-}
-
-export interface CommentExpression {
-  content: string;
-}
-
-export interface Cringe {
-  content: string;
-}
-
-export interface Assignment {
-  variableName: string;
-  value:
-    Expression |
-    FunctionExpression |
-    FunctionCompositionExpression |
-    TernaryIfExpression |
-    ObjectDefenitionExpression;
-}
+export type Statement =
+{
+  type: 'Expression',
+  value: Expression;
+} | {
+  type: 'Assignment',
+  value: Assignment;
+};
 
 export const expectTokenType = (tokenType: TokenType, expectedTokenTypes: TokenType[]) => {
   if (expectedTokenTypes.includes(tokenType)) {
     return true;
   }
 
-  throw new Error('Unxpected token type');
-};
-
-const concatTokensStringView = (tokens: Token[]) =>
-  tokens.map(token => token.stringView).join('');
-
-const getFirstStatementInOrder = (
-  order: Record<StatementType, number>
-): StatementType | null =>
-  (Object.keys(order) as StatementType[]).reduce<StatementType | null>((minKey, key) => {
-    if (order[key] === -1) {
-      return minKey;
-    }
-    if (!minKey) {
-      return key;
-    }
-    if (order[key] < order[minKey]) {
-      return key;
-    }
-    return minKey;
-  }, null);
-
-export const parseAnyTypeExpression = (tokens: Token[]) => {
-  const statementsOrder = {
-    Cringe: -1,
-    Comment: -1,
-    Assignment: -1,
-    FunctionDefinitionExpression: findIndexOfFunctionExpression(tokens),
-    FunctionCompositionExpression: findIndexOfFunctionCompositionExpression(tokens),
-    TernaryIf: findIndexOfTernaryIfExpression(tokens),
-    ObjectDefenition: findIndexOfObjectExpression(tokens),
-    Expression: -1,
-  };
-  const firstStatementType = getFirstStatementInOrder(statementsOrder);
-  try {
-    switch (firstStatementType) {
-      case 'ObjectDefenition':
-        return parseObjectDefenition(tokens);
-      case 'FunctionCompositionExpression':
-        return parseFunctionCompositionExpression(tokens);
-      case 'FunctionDefinitionExpression':
-        return parseFunctionExpression(tokens);
-      case 'TernaryIf':
-        return parseTernaryIf(tokens);
-      default:
-        return parseExpression(tokens);
-    }
-  } catch (err) {
-    throw new Error(`${err.message}\nFor expression:\n${concatTokensStringView(tokens)}\nExpected type of expression: ${firstStatementType}`);
-  }
+  throw new Error(`Unxpected token type: ${tokenType}`);
 };
 
 const splitTokensToStatements = (tokens: Token[]): Token[][] => {
@@ -179,70 +70,19 @@ const splitTokensToStatements = (tokens: Token[]): Token[][] => {
   }
 };
 
-type StatementType =
-  'Assignment' |
-  'Expression' |
-  'FunctionCompositionExpression' |
-  'FunctionDefinitionExpression' |
-  'TernaryIf' |
-  'ObjectDefenition' |
-  'Comment' |
-  'Cringe';
-
 const parseStatement = (tokens: Token[]): Statement => {
-  const statementsOrder = {
-    Cringe: findIndexOfCringe(tokens),
-    Comment: findIndexOfCommentExpression(tokens),
-    Assignment: findIndexOfAssignment(tokens),
-    FunctionDefinitionExpression: findIndexOfFunctionExpression(tokens),
-    FunctionCompositionExpression: findIndexOfFunctionCompositionExpression(tokens),
-    TernaryIf: findIndexOfTernaryIfExpression(tokens),
-    ObjectDefenition: findIndexOfObjectExpression(tokens),
-    Expression: -1,
-  };
-  const firstStatementType = getFirstStatementInOrder(statementsOrder);
-  switch (firstStatementType) {
-    case 'Cringe':
-      return {
-        type: 'Cringe',
-        value: parseCringe(tokens)
-      };
-    case 'Comment':
-      return {
-        type: 'Comment',
-        value: parseComment(tokens)
-      };
-    case 'Assignment':
-      return {
-        type: 'Assignment',
-        value: parseAssignment(tokens)
-      };
-    case 'FunctionDefinitionExpression':
-      return {
-        type: 'FunctionDefinitionExpression',
-        value: parseFunctionExpression(tokens)
-      };
-    case 'FunctionCompositionExpression':
-      return {
-        type: 'FunctionCompositionExpression',
-        value: parseFunctionCompositionExpression(tokens)
-      };
-    case 'TernaryIf':
-      return {
-        type: 'TernaryIf',
-        value: parseTernaryIf(tokens)
-      }
-    case 'ObjectDefenition':
-      return {
-        type: 'ObjectDefenition',
-        value: parseObjectDefenition(tokens)
-      };
-    default:
-      return {
-        type: 'Expression',
-        value: parseAnyTypeExpression(tokens)
-      };
+  const isAssignment = checkIsAssignment(tokens);
+  if (isAssignment) {
+    return {
+      type: 'Assignment',
+      value: parseAssignment(tokens),
+    };
   }
+  const parsedExpression = parseExpression(tokens);
+  return {
+    type: 'Expression',
+    value: parsedExpression,
+  };
 };
 
 export const parse = (tokens: Token[]): Statement[] => {
@@ -254,7 +94,11 @@ export const parse = (tokens: Token[]): Statement[] => {
     try {
       return parseStatement(statement);
     } catch (err) {
-      throw new Error(`Line ${lineIndex + 1}: ${err.message}`);
+      const message =
+        (typeof err === 'string') ? err :
+        (err instanceof Error) ? err.message :
+        'unknown error';
+      throw new Error(`Line ${lineIndex + 1}: ${message}`);
     }
   });
   const resultStatements = statements.filter(

@@ -1,11 +1,12 @@
-import { expectTokenType } from './parserV2';
+import { expectTokenType } from './parser';
 import { Token, TokenType } from '../tokenizer';
+import { Expression, parseExpression } from './expression';
 
 export interface MathematicalExpression {
   type: 'MathematicalExpression';
-  leftOperand: Token | MathematicalExpressionParenthesized;
+  leftOperand: Token[] | MathematicalExpressionParenthesized | Expression;
   operators: Token[] | null;
-  rightOperand: MathematicalExpression | MathematicalExpressionParenthesized | null;
+  rightOperand: Expression | null;
 }
 
 export interface MathematicalExpressionParenthesized {
@@ -31,6 +32,7 @@ const operatorTypes = [
   TokenType.Equal,
   TokenType.Or,
   TokenType.And,
+  TokenType.Percent,
 ];
 
 const parseOperand = (tokens: Token[]) => {
@@ -74,11 +76,25 @@ export const getTokensMathematicalExpressionParenthesized = (
   if (tokens[0].type !== TokenType.OpenBracket) {
     return null;
   }
-  const closeBracketIndex = tokens.map(token => token.type).lastIndexOf(TokenType.CloseBracket);
-  if (closeBracketIndex === -1) {
-    throw new Error(`Failed to parse parenthesized expression. CloseBracket not found: ${tokens.map(token => token.stringView).join('')}`);
+  if (tokens[tokens.length - 1].type !== TokenType.CloseBracket) {
+    return null;
   }
-  return tokens.slice(1, closeBracketIndex);
+  return tokens.slice(1, tokens.length - 1);
+};
+
+export const checkIsParenthesized = (
+  tokens: Token[]
+): boolean => {
+  if (tokens.length === 0) {
+    return false;
+  }
+  if (tokens[0].type !== TokenType.OpenBracket) {
+    return false;
+  }
+  if (tokens[tokens.length - 1].type !== TokenType.CloseBracket) {
+    return false;
+  }
+  return true;
 };
 
 export const parseMathematicalExpression = (
@@ -86,29 +102,30 @@ export const parseMathematicalExpression = (
 ): MathematicalExpression | MathematicalExpressionParenthesized => {
   const expressionParenthesizedTokens =
     getTokensMathematicalExpressionParenthesized(tokens);
-  const leftOperandTokens =
-    expressionParenthesizedTokens || [parseOperand(tokens)];
-  const leftOperand = expressionParenthesizedTokens ?
-    parseExpressionParenthesized(leftOperandTokens) :
-    leftOperandTokens[0];
-  const operatorsIndex = expressionParenthesizedTokens ?
-    leftOperandTokens.length + 2 : // 2 - OpenBracket and CloseBracket
-    leftOperandTokens.length;
-  const operators = parseOperators(tokens.slice(operatorsIndex));
-  if (operators.length === 0) {
+  if (expressionParenthesizedTokens) {
     return {
       type: 'MathematicalExpression',
-      leftOperand: leftOperand,
+      leftOperand: parseExpressionParenthesized(expressionParenthesizedTokens),
       operators: null,
       rightOperand: null,
     };
   }
-  const rightOperandTokens = tokens.slice(operatorsIndex + operators.length);
-  const rightOperand = parseMathematicalExpression(rightOperandTokens);
+  const firstOperatorIndex = tokens.findIndex(token => operatorTypes.includes(token.type));
+  if (firstOperatorIndex === -1) {
+    return {
+      type: 'MathematicalExpression',
+      leftOperand: tokens,
+      operators: null,
+      rightOperand: null,
+    };
+  }
+  const operators = parseOperators(tokens.slice(firstOperatorIndex));
+  const leftOperands = tokens.slice(0, firstOperatorIndex);
+  const rightOperands = tokens.slice(firstOperatorIndex + operators.length);
   return {
     type: 'MathematicalExpression',
-    leftOperand,
+    leftOperand: parseExpression(leftOperands),
     operators,
-    rightOperand,
+    rightOperand: parseExpression(rightOperands),
   };
 };

@@ -1,26 +1,29 @@
 export enum TokenType {
-  Name,            // 0
-  Num,             // 1
-  Str,             // 2
-  Equal,           // 3
-  NewLine,         // 4
-  Multiply,        // 5
-  Devide,          // 6
-  Plus,            // 7
-  Minus,           // 8
-  Quote,           // 9
-  Comma,           // 10
-  OpenBrace,       // 11
-  CloseBrace,      // 12
-  OpenBracket,     // 13
-  CloseBracket,    // 14
-  Greater,         // 15
-  Less,            // 16
-  ExclamationMark, // 17
-  Colon,           // 18
-  QuestionMark,    // 19
-  Or,              // 20
-  And,             // 21
+  Name = 'Name',
+  Num = 'Num',
+  Str = 'Str',
+  Equal = 'Equal',
+  NewLine = 'NewLine',
+  Multiply = 'Multiply',
+  Devide = 'Devide',
+  Plus = 'Plus',
+  Minus = 'Minus',
+  Quote = 'Quote',
+  Comma = 'Comma',
+  OpenBrace = 'OpenBrace',
+  CloseBrace = 'CloseBrace',
+  OpenBracket = 'OpenBracket',
+  CloseBracket = 'CloseBracket',
+  Greater = 'Greater',
+  Less = 'Less',
+  ExclamationMark = 'ExclamationMark',
+  Colon = 'Colon',
+  QuestionMark = 'QuestionMark',
+  Or = 'Or',
+  And = 'And',
+  Cringe = 'Cringe',
+  CringeSymbol = 'CringeSymbol',
+  Percent = 'Percent',
 }
 
 export const getComplexTokenType = (stringView: string) => {
@@ -29,6 +32,12 @@ export const getComplexTokenType = (stringView: string) => {
     (stringView[stringView.length - 1] === '\'')
   ) {
     return TokenType.Str;
+  }
+  if (
+    (stringView[0] === '~') &&
+    (stringView[stringView.length - 1] === '~')
+  ) {
+    return TokenType.Cringe;
   }
   if (stringView === '||') {
     return TokenType.Or;
@@ -80,6 +89,10 @@ export const getTokenType = (stringView: string) => {
       return TokenType.QuestionMark;
     case '\n':
       return TokenType.NewLine;
+    case '~':
+      return TokenType.CringeSymbol;
+    case '%':
+      return TokenType.Percent;
     default:
       return getComplexTokenType(stringView);
   }
@@ -118,20 +131,22 @@ export const tokenize = (source: string) => {
       const charTokenType = getTokenType(currChar);
       const currCharsBuffer = currState.charsBuffer;
       const currToken = getToken(currCharsBuffer + currChar);
-      const isStringCompleted = currToken.type === TokenType.Str;
-      if (isStringCompleted) {
+      const completeComplexTokens = [TokenType.Str, TokenType.Cringe];
+      const isComplexCompleted = completeComplexTokens.includes(currToken.type);
+      if (isComplexCompleted) {
         return {
           tokens: [...currState.tokens, currToken],
           charsBuffer: ''
         };
       }
       const isNotLastChar = charIndex !== chars.length - 1;
-      const isStringOpenedInBuffer =
+      const startComplexTokens = [TokenType.Quote, TokenType.CringeSymbol];
+      const isComplexOpenedInBuffer =
         (!!currState.charsBuffer[0]) &&
-        (getTokenType(currState.charsBuffer[0]) === TokenType.Quote);
-      const isStringOpened =
-        (charTokenType === TokenType.Quote) ||
-        isStringOpenedInBuffer;
+        (startComplexTokens.includes(getTokenType(currState.charsBuffer[0])));
+      const isComplexOpened =
+        startComplexTokens.includes(charTokenType) ||
+        isComplexOpenedInBuffer;
       const isNumOrNameNotCompleted =
         (charTokenType === TokenType.Num && isNotLastChar) ||
         (charTokenType === TokenType.Name && isNotLastChar);
@@ -146,7 +161,7 @@ export const tokenize = (source: string) => {
 
       if (
         (isNeedFeedBuffer && isNumOrNameNotCompleted) ||
-        (isStringOpened)
+        (isComplexOpened)
       ) {
         return {
           tokens: currState.tokens,

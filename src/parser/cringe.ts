@@ -1,47 +1,22 @@
 import { Token, TokenType } from '../tokenizer';
-import { Cringe, expectTokenType } from './parser';
+import { expectTokenType } from './parser';
 
-export const parseCringe = (tokens: Token[]): Cringe => {
-  const openBraceIndex = tokens.findIndex(
-    token => token.type === TokenType.OpenBrace
-  );
-  const closeBraceIndexReversed = tokens.slice().reverse().findIndex(
-    token => token.type === TokenType.CloseBrace
-  );
-  const closeBraceIndex = (closeBraceIndexReversed === -1) ?
-    -1 :
-    tokens.length - 1 - closeBraceIndexReversed;
+export interface Cringe {
+  content: string;
+}
 
-  const content = tokens.slice(1).reduce(
-    (accum, currToken, index) => {
-      if (
-        (index === closeBraceIndex - 2) ||
-        (index === closeBraceIndex - 1) ||
-        (index === openBraceIndex - 1) ||
-        (index === openBraceIndex)
-      ) {
-        return accum;
-      }
-      return accum + currToken.stringView;
-    },
-    ''
-  );
-  return {
-    content: content
-  };
+export const checkIsCringe = (tokens: Token[]) => {
+  try {
+    expectTokenType(tokens[0].type, [TokenType.Cringe]);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
-export const findIndexOfCringe = (tokens: Token[]) => {
-  try {
-    expectTokenType(tokens[0].type, [TokenType.Name]);
-    if (
-      (tokens[0].stringView === 'CRINGE') ||
-      (tokens[0].stringView === '🤣')
-    ) {
-      return 0;
-    }
-    return -1;
-  } catch {
-    return -1;
-  }
+export const parseCringe = (tokens: Token[]): Cringe => {
+  const stringView = tokens[0].stringView;
+  return {
+    content: stringView.slice(1, stringView.length - 1).trim(),
+  };
 };
