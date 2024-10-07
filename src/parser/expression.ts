@@ -1,46 +1,110 @@
-import { Token, TokenType } from '../tokenizer';
-import { expectTokenType, Expression } from './parser';
+import { Token } from '../tokenizer';
+import {
+  checkIsFunctionDefinition,
+  FunctionDefinition,
+  parseFunctionDefinition
+} from './functionDefinition';
+import {
+  checkIsFunctionCall,
+  FunctionCall,
+  parseFunctionCall
+} from './functionCall';
+import {
+  MathematicalExpression,
+  MathematicalExpressionParenthesized,
+  parseMathematicalExpression
+} from './mathematicalExpression';
+import {
+  checkIsObjectDefinition,
+  ObjectDefinition,
+  parseObjectDefinition
+} from './objectDefinition';
+import {
+  checkIsTernaryIf,
+  parseTernaryIf,
+  TernaryIf
+} from './ternaryIf';
+import {
+  checkIsComment,
+  Comment,
+  parseComment
+} from './comment';
+import {
+  checkIsCringe,
+  Cringe,
+  parseCringe
+} from './cringe';
 
-export const parseOperators = (tokens: Token[]): Token[] => {
-  if (tokens.length === 0) {
-    return [];
-  }
-  try {
-    expectTokenType(
-      tokens[1].type,
-      [
-        TokenType.Plus,
-        TokenType.Minus,
-        TokenType.Multiply,
-        TokenType.Devide,
-        TokenType.Greater,
-        TokenType.Less,
-        TokenType.Equal,
-        TokenType.ExclamationMark,
-        TokenType.Equal
-      ]
-    );
-    return [tokens[1], ...parseOperators(tokens.slice(1))];
-  } catch {
-    return [];
-  };
+export type Expression = {
+  type: 'FunctionDefinition';
+  value: FunctionDefinition;
+} | {
+  type: 'FunctionCall';
+  value: FunctionCall;
+} | {
+  type: 'ObjectDefinition';
+  value: ObjectDefinition;
+} | {
+  type: 'TernaryIf';
+  value: TernaryIf;
+} | {
+  type: 'Comment';
+  value: Comment;
+} | {
+  type: 'Cringe';
+  value: Cringe;
+} | {
+  type: 'MathematicalExpression';
+  value: MathematicalExpression | MathematicalExpressionParenthesized;
 };
 
-export const parseExpression = (tokens: Token[]): Expression => {
-  if (tokens.length === 1) {
+export const parseExpression = (
+  tokens: Token[]
+  ): Expression => {
+  const isFunctionDefinition = checkIsFunctionDefinition(tokens);
+  if (isFunctionDefinition) {
     return {
-      leftOperand: tokens[0],
-      operator: null,
-      rightOperand: null
+      type: 'FunctionDefinition',
+      value: parseFunctionDefinition(tokens),
     }
-  };
-
-  const operatorTokens: Token[] = parseOperators(tokens.slice(1));
-  operatorTokens.push(tokens[1]);
-  const rightTokens = tokens.slice(operatorTokens.length + 1, tokens.length);
+  }
+  const isObjectDefinition = checkIsObjectDefinition(tokens);
+  if (isObjectDefinition) {
+    return {
+      type: 'ObjectDefinition',
+      value: parseObjectDefinition(tokens),
+    };
+  }
+  const isFunctionCall = checkIsFunctionCall(tokens);
+  if (isFunctionCall) {
+    return {
+      type: 'FunctionCall',
+      value: parseFunctionCall(tokens),
+    };
+  }
+  const isTernaryIf = checkIsTernaryIf(tokens);
+  if (isTernaryIf) {
+    return {
+      type: 'TernaryIf',
+      value: parseTernaryIf(tokens),
+    };
+  }
+  const isComment = checkIsComment(tokens);
+  if (isComment) {
+    return {
+      type: 'Comment',
+      value: parseComment(tokens),
+    };
+  }
+  const isCringe = checkIsCringe(tokens);
+  if (isCringe) {
+    return {
+      type: 'Cringe',
+      value: parseCringe(tokens),
+    };
+  }
   return {
-    leftOperand: tokens[0],
-    operator: operatorTokens,
-    rightOperand: parseExpression(rightTokens)
+    type: 'MathematicalExpression',
+    value: parseMathematicalExpression(tokens),
   };
 };

@@ -1,23 +1,25 @@
 import { Token, TokenType } from '../tokenizer';
-import { CommentExpression, expectTokenType } from './parser';
+import { expectTokenType } from './parser';
 
-export const parseComment = (tokens: Token[]): CommentExpression => {
-  const content = tokens.slice(2).reduce(
-    (accum, currToken) => accum + currToken.stringView,
-    ''
-  );
-  return {
-    content: content
-  };
-};
+export interface Comment {
+  content: string;
+}
 
-export const checkIsCommentExpression = (tokens: Token[]) => {
+export const checkIsComment = (tokens: Token[]) => {
   try {
-    const expectedTypes = [TokenType.Devide];
-    expectTokenType(tokens[0].type, expectedTypes);
-    expectTokenType(tokens[1].type, expectedTypes);
+    expectTokenType(tokens[0].type, [TokenType.Devide]);
+    expectTokenType(tokens[1].type, [TokenType.Devide]);
     return true;
   } catch {
     return false;
   }
+};
+
+export const parseComment = (tokens: Token[]): Comment => {
+  const content = tokens.slice(2).map(
+    token => token.stringView,
+  ).join(' ');
+  return {
+    content,
+  };
 };
