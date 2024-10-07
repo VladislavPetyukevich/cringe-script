@@ -62,3 +62,32 @@ One line:
 ```
 ~ console.log('ternaryIf:', ternaryIf); ~
 ```
+## Example program
+```
+counterUp = current => max => callback => current <= max ? callback(current) || counterUp(current + 1)(max)(callback) : current
+counterDown = initial => callback => initial > 0 ? callback(initial) || counterDown(initial - 1)(callback) : initial
+
+printRow = row => console.log(('🤣 ').repeat(row))
+
+start = 1
+end = 7
+
+counterUp(start)(end - 1)(printRow)
+counterDown(end)(printRow)
+```
+Execution result:
+```
+🤣
+🤣 🤣
+🤣 🤣 🤣
+🤣 🤣 🤣 🤣
+🤣 🤣 🤣 🤣 🤣
+🤣 🤣 🤣 🤣 🤣 🤣
+🤣 🤣 🤣 🤣 🤣 🤣 🤣
+🤣 🤣 🤣 🤣 🤣 🤣
+🤣 🤣 🤣 🤣 🤣
+🤣 🤣 🤣 🤣
+🤣 🤣 🤣
+🤣 🤣
+🤣
+```
